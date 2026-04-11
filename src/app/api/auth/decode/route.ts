@@ -23,10 +23,10 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     valid: true,
     payload: {
-      name: payload.name,
+      name: payload.name || null,
       role: payload.role,
-      jti: payload.jti,
-      issuedAt: new Date(payload.iat * 1000).toISOString(),
+      jti: payload.jti || null,
+      issuedAt: payload.iat ? new Date(payload.iat * 1000).toISOString() : null,
       expiresAt: new Date(payload.exp * 1000).toISOString(),
     },
   });

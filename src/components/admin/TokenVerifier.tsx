@@ -3,10 +3,10 @@
 import { useState } from "react";
 
 interface DecodedPayload {
-  name: string;
+  name: string | null;
   role: string;
-  jti: string;
-  issuedAt: string;
+  jti: string | null;
+  issuedAt: string | null;
   expiresAt: string;
 }
 
@@ -84,8 +84,12 @@ export default function TokenVerifier() {
             <div className="space-y-2">
               <p className="font-semibold text-green-700">Valid Token</p>
               <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-gray-700">
-                <dt className="font-medium">Name</dt>
-                <dd>{result.payload.name}</dd>
+                {result.payload.name && (
+                  <>
+                    <dt className="font-medium">Name</dt>
+                    <dd>{result.payload.name}</dd>
+                  </>
+                )}
                 <dt className="font-medium">Role</dt>
                 <dd>
                   <span
@@ -98,10 +102,18 @@ export default function TokenVerifier() {
                     {result.payload.role}
                   </span>
                 </dd>
-                <dt className="font-medium">Token ID</dt>
-                <dd className="font-mono text-xs">{result.payload.jti}</dd>
-                <dt className="font-medium">Issued At</dt>
-                <dd>{new Date(result.payload.issuedAt).toLocaleString()}</dd>
+                {result.payload.jti && (
+                  <>
+                    <dt className="font-medium">Token ID</dt>
+                    <dd className="font-mono text-xs">{result.payload.jti}</dd>
+                  </>
+                )}
+                {result.payload.issuedAt && (
+                  <>
+                    <dt className="font-medium">Issued At</dt>
+                    <dd>{new Date(result.payload.issuedAt).toLocaleString()}</dd>
+                  </>
+                )}
                 <dt className="font-medium">Expires At</dt>
                 <dd>{new Date(result.payload.expiresAt).toLocaleString()}</dd>
               </dl>

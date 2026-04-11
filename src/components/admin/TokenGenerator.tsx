@@ -7,10 +7,12 @@ export default function TokenGenerator() {
   const [name, setName] = useState("");
   const [role, setRole] = useState<"viewer" | "admin">("viewer");
   const [expiresIn, setExpiresIn] = useState("12w");
-  const [format, setFormat] = useState<"jwt" | "compact">("compact");
+  const [format, setFormat] = useState<"jwt" | "compact" | "mini">("compact");
   const [generatedToken, setGeneratedToken] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const isMini = format === "mini";
 
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault();
@@ -22,7 +24,12 @@ export default function TokenGenerator() {
       const res = await fetch("/api/auth/token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), role, expiresIn, format }),
+        body: JSON.stringify({
+          name: isMini ? "mini" : name.trim(),
+          role: isMini ? "viewer" : role,
+          expiresIn,
+          format,
+        }),
       });
 
       if (!res.ok) {
@@ -52,36 +59,40 @@ export default function TokenGenerator() {
       >
         <h2 className="text-lg font-semibold text-gray-900">Generate New Token</h2>
 
-        <div>
-          <label htmlFor="token-name" className="block text-sm font-medium text-gray-700 mb-1">
-            Name
-          </label>
-          <input
-            id="token-name"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Company XYZ, John Doe"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900"
-            required
-          />
-        </div>
+        {!isMini && (
+          <div>
+            <label htmlFor="token-name" className="block text-sm font-medium text-gray-700 mb-1">
+              Name
+            </label>
+            <input
+              id="token-name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Company XYZ, John Doe"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900"
+              required
+            />
+          </div>
+        )}
 
         <div className="grid grid-cols-3 gap-4">
-          <div>
-            <label htmlFor="token-role" className="block text-sm font-medium text-gray-700 mb-1">
-              Role
-            </label>
-            <select
-              id="token-role"
-              value={role}
-              onChange={(e) => setRole(e.target.value as "viewer" | "admin")}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900 bg-white"
-            >
-              <option value="viewer">Viewer</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
+          {!isMini && (
+            <div>
+              <label htmlFor="token-role" className="block text-sm font-medium text-gray-700 mb-1">
+                Role
+              </label>
+              <select
+                id="token-role"
+                value={role}
+                onChange={(e) => setRole(e.target.value as "viewer" | "admin")}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900 bg-white"
+              >
+                <option value="viewer">Viewer</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          )}
 
           <div>
             <label htmlFor="token-expiry" className="block text-sm font-medium text-gray-700 mb-1">
@@ -110,9 +121,10 @@ export default function TokenGenerator() {
             <select
               id="token-format"
               value={format}
-              onChange={(e) => setFormat(e.target.value as "jwt" | "compact")}
+              onChange={(e) => setFormat(e.target.value as "jwt" | "compact" | "mini")}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900 bg-white"
             >
+              <option value="mini">Mini (8 chars, viewer only)</option>
               <option value="compact">Compact (short, better QR)</option>
               <option value="jwt">JWT (standard, longer)</option>
             </select>
@@ -127,7 +139,7 @@ export default function TokenGenerator() {
 
         <button
           type="submit"
-          disabled={loading || !name.trim()}
+          disabled={loading || (!isMini && !name.trim())}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
           {loading ? "Generating..." : "Generate Token"}

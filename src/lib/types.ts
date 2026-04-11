@@ -1,6 +1,6 @@
 export type Role = "admin" | "viewer";
 
-export type TokenFormat = "jwt" | "compact";
+export type TokenFormat = "jwt" | "compact" | "mini";
 
 export interface TokenPayload {
   name: string;

@@ -3,6 +3,7 @@ import "server-only";
 import { SignJWT, jwtVerify } from "jose";
 import { v4 as uuidv4 } from "uuid";
 import { signCompactToken, verifyCompactToken } from "./compact-token";
+import { isMiniToken, signMiniToken, verifyMiniToken } from "./mini-token";
 import type { Role, TokenFormat, TokenPayload } from "./types";
 
 function getSecret(): Uint8Array {
@@ -15,9 +16,11 @@ function getSecret(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
-/** Detect token format: JWTs contain dots, compact tokens don't */
+/** Detect token format: JWTs contain dots, mini tokens are 8 chars, rest is compact */
 export function detectTokenFormat(token: string): TokenFormat {
-  return token.includes(".") ? "jwt" : "compact";
+  if (token.includes(".")) return "jwt";
+  if (isMiniToken(token)) return "mini";
+  return "compact";
 }
 
 async function signJWT(
@@ -58,6 +61,9 @@ export async function signToken(
   expiresIn: string = "12w",
   format: TokenFormat = "jwt"
 ): Promise<string> {
+  if (format === "mini") {
+    return signMiniToken(expiresIn);
+  }
   if (format === "compact") {
     return signCompactToken(name, role, expiresIn);
   }
@@ -67,7 +73,11 @@ export async function signToken(
 export async function verifyToken(
   token: string
 ): Promise<TokenPayload | null> {
-  if (detectTokenFormat(token) === "compact") {
+  const format = detectTokenFormat(token);
+  if (format === "mini") {
+    return verifyMiniToken(token);
+  }
+  if (format === "compact") {
     return verifyCompactToken(token);
   }
   return verifyJWT(token);

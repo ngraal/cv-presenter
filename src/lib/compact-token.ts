@@ -1,40 +1,10 @@
 import type { Role, TokenPayload } from "./types";
+import { computeHmac, constantTimeEqual, parseExpiresIn } from "./crypto-utils";
 
 const VERSION = 0x01;
 const HMAC_LENGTH = 16;
 const ROLE_TO_BYTE: Record<Role, number> = { viewer: 0x01, admin: 0x02 };
 const BYTE_TO_ROLE: Record<number, Role> = { 0x01: "viewer", 0x02: "admin" };
-
-function getSecretBytes(): Uint8Array {
-  const secret = process.env.JWT_SECRET;
-  if (!secret || secret.length < 32) {
-    throw new Error(
-      "JWT_SECRET environment variable must be set and at least 32 characters long"
-    );
-  }
-  return new TextEncoder().encode(secret);
-}
-
-async function getHmacKey(): Promise<CryptoKey> {
-  const secret = getSecretBytes();
-  const keyData = new ArrayBuffer(secret.byteLength);
-  new Uint8Array(keyData).set(secret);
-  return crypto.subtle.importKey(
-    "raw",
-    keyData,
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-}
-
-async function computeHmac(data: Uint8Array): Promise<Uint8Array> {
-  const key = await getHmacKey();
-  const buf = new ArrayBuffer(data.byteLength);
-  new Uint8Array(buf).set(data);
-  const sig = await crypto.subtle.sign("HMAC", key, buf);
-  return new Uint8Array(sig).slice(0, HMAC_LENGTH);
-}
 
 function base64urlEncode(data: Uint8Array): string {
   let binary = "";
@@ -57,19 +27,7 @@ function base64urlDecode(str: string): Uint8Array {
   return bytes;
 }
 
-function parseExpiresIn(expiresIn: string): number {
-  const now = Math.floor(Date.now() / 1000);
-  const match = expiresIn.match(/^(\d+)(h|d|w)$/);
-  if (!match) throw new Error(`Invalid expiresIn format: ${expiresIn}`);
-  const value = parseInt(match[1]);
-  const unit = match[2];
-  const multipliers: Record<string, number> = {
-    h: 3600,
-    d: 86400,
-    w: 604800,
-  };
-  return now + value * multipliers[unit];
-}
+
 
 export async function signCompactToken(
   name: string,
@@ -87,7 +45,7 @@ export async function signCompactToken(
   view.setUint32(2, exp, false);
   payload.set(nameBytes, 6);
 
-  const hmac = await computeHmac(payload);
+  const hmac = await computeHmac(payload, HMAC_LENGTH);
   const full = new Uint8Array(payloadLen + HMAC_LENGTH);
   full.set(payload);
   full.set(hmac, payloadLen);
@@ -112,15 +70,9 @@ export async function verifyCompactToken(
     const payload = data.slice(0, payloadLen);
     const receivedHmac = data.slice(payloadLen);
 
-    const expectedHmac = await computeHmac(payload);
+    const expectedHmac = await computeHmac(payload, HMAC_LENGTH);
 
-    // Constant-time comparison
-    if (expectedHmac.length !== receivedHmac.length) return null;
-    let diff = 0;
-    for (let i = 0; i < expectedHmac.length; i++) {
-      diff |= expectedHmac[i] ^ receivedHmac[i];
-    }
-    if (diff !== 0) return null;
+    if (!constantTimeEqual(expectedHmac, receivedHmac)) return null;
 
     const view = new DataView(
       payload.buffer,

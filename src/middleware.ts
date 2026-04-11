@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { verifyCompactToken } from "@/lib/compact-token";
+import { isMiniToken, verifyMiniToken } from "@/lib/mini-token";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const AUTH_COOKIE = "cv-presenter-token";
 
@@ -13,6 +15,13 @@ function getSecret(): Uint8Array {
 async function verifyTokenMiddleware(
   token: string
 ): Promise<{ name: string; role: string; exp?: number } | null> {
+  // Mini tokens: exactly 8 chars from the mini alphabet
+  if (isMiniToken(token)) {
+    const payload = await verifyMiniToken(token);
+    if (payload) return { name: payload.name, role: payload.role, exp: payload.exp };
+    return null;
+  }
+
   // Compact tokens don't contain dots, JWTs always do
   if (!token.includes(".")) {
     const payload = await verifyCompactToken(token);
@@ -46,6 +55,23 @@ export async function middleware(request: NextRequest) {
     pathname === "/api/auth/verify"
   ) {
     return NextResponse.next();
+  }
+
+  // Rate limiting for API routes
+  if (pathname.startsWith("/api/")) {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+      || request.headers.get("x-real-ip")
+      || "unknown";
+    const { allowed, retryAfterMs } = checkRateLimit(ip);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Too many requests" },
+        {
+          status: 429,
+          headers: { "Retry-After": String(Math.ceil(retryAfterMs / 1000)) },
+        }
+      );
+    }
   }
 
   // Check for token in query parameter
