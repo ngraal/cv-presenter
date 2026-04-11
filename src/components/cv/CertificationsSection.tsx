@@ -1,4 +1,5 @@
 import type { Certification } from "@/lib/types";
+import MarkdownText from "./MarkdownText";
 
 export default function CertificationsSection({
   items,
@@ -37,9 +38,9 @@ export default function CertificationsSection({
                 )}
               </div>
               {item.description && (
-                <p className="text-on-surface-variant text-sm max-w-2xl whitespace-pre-line">
+                <MarkdownText className="text-on-surface-variant text-sm max-w-2xl">
                   {item.description}
-                </p>
+                </MarkdownText>
               )}
             </div>
           ))}

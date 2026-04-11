@@ -1,4 +1,5 @@
 import type { Education } from "@/lib/types";
+import MarkdownText from "./MarkdownText";
 
 export default function EducationSection({ items }: { items: Education[] }) {
   if (items.length === 0) return null;
@@ -49,9 +50,9 @@ export default function EducationSection({ items }: { items: Education[] }) {
                   </span>
                 </div>
                 {item.description && (
-                  <p className="text-on-surface-variant text-sm max-w-2xl whitespace-pre-line">
+                  <MarkdownText className="text-on-surface-variant text-sm max-w-2xl">
                     {item.description}
-                  </p>
+                  </MarkdownText>
                 )}
               </div>
             );
