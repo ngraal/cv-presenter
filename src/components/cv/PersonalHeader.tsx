@@ -44,7 +44,7 @@ export default function PersonalHeader({
   return (
     <section
       id="hero"
-      className="flex flex-col justify-center items-center px-8 md:px-12 lg:px-20 section-gradient-1 relative overflow-hidden py-16 md:py-24"
+      className="flex flex-col justify-center items-center px-8 md:px-12 lg:px-20 relative overflow-hidden py-16 md:py-24"
     >
       <div className="relative z-10 max-w-5xl w-full flex flex-col md:flex-row items-center md:items-start gap-12 md:gap-16">
         {/* Avatar Column */}
@@ -77,6 +77,14 @@ export default function PersonalHeader({
 
           <div className="flex flex-col items-center md:items-start gap-6 mb-8">
             <div className="flex flex-wrap justify-center md:justify-start gap-y-3 gap-x-8 text-sm">
+              {data.birthDate && (
+                <div className="flex items-center gap-2 text-on-surface-variant">
+                  <span className="material-symbols-outlined text-primary text-lg">
+                    cake
+                  </span>
+                  <span>{data.birthDate}</span>
+                </div>
+              )}
               {data.email && (
                 <a
                   href={`mailto:${data.email}`}

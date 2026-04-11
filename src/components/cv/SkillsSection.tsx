@@ -31,11 +31,11 @@ export default function SkillsSection({ items }: { items: Skill[] }) {
   return (
     <section
       id="skills"
-      className="py-20 px-8 md:px-12 lg:px-20 section-gradient-2"
+      className="py-20 px-8 md:px-12 lg:px-20"
     >
       <div className="max-w-4xl mx-auto">
         <h2 className="font-headline text-3xl md:text-4xl font-extrabold text-white mb-10 tracking-tight flex items-center gap-3">
-          <span className="text-secondary">03.</span> Technische Fähigkeiten
+          <span className="text-secondary">04.</span> Technische Fähigkeiten
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {items.map((skill, index) => {

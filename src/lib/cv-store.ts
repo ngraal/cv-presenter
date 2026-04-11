@@ -16,6 +16,7 @@ const DEFAULT_CV: CVData = {
     email: "jane.doe@example.com",
     phone: "+1 555 123 4567",
     location: "Berlin, Germany",
+    birthDate: "",
     links: [
       { id: "link-1", name: "Website", url: "https://janedoe.dev" },
       { id: "link-2", name: "LinkedIn", url: "https://linkedin.com/in/janedoe" },
@@ -84,6 +85,7 @@ const DEFAULT_CV: CVData = {
       items: ["Git", "GitHub Actions", "AWS", "Terraform"],
     },
   ],
+  certifications: [],
 };
 
 async function ensureDataDir(): Promise<void> {
@@ -98,7 +100,13 @@ export async function getCVData(): Promise<CVData> {
   await ensureDataDir();
   try {
     const data = await readFile(CV_JSON_PATH, "utf-8");
-    return JSON.parse(data) as CVData;
+    const parsed = JSON.parse(data) as Partial<CVData>;
+    return {
+      ...DEFAULT_CV,
+      ...parsed,
+      personal: { ...DEFAULT_CV.personal, ...parsed.personal },
+      certifications: parsed.certifications ?? [],
+    };
   } catch {
     await writeFile(CV_JSON_PATH, JSON.stringify(DEFAULT_CV, null, 2), "utf-8");
     return DEFAULT_CV;

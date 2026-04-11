@@ -16,6 +16,9 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: "CV Presenter",
   description: "Digital CV & Business Card",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 import AdminOverlay from "@/components/AdminOverlay";

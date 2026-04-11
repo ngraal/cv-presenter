@@ -11,7 +11,7 @@ export default function FloatingDownloadButton() {
           Download as PDF
         </span>
         <span className="flex items-center justify-center w-14 h-14 shrink-0">
-          <span className="material-symbols-outlined text-2xl">download</span>
+          <span className="material-symbols-outlined text-2xl">file_save</span>
         </span>
       </a>
     </div>

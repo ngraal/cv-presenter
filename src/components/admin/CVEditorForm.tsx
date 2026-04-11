@@ -2,7 +2,36 @@
 
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
-import type { CVData, Experience, Education, Skill, Link } from "@/lib/types";
+import type { CVData, Experience, Education, Skill, Link, Certification } from "@/lib/types";
+
+function SkillItemsInput({
+  value,
+  onChange,
+  className,
+}: {
+  value: string[];
+  onChange: (items: string[]) => void;
+  className: string;
+}) {
+  const [text, setText] = useState(value.join(", "));
+
+  useEffect(() => {
+    setText(value.join(", "));
+  }, [value]);
+
+  return (
+    <input
+      type="text"
+      value={text}
+      onChange={(e) => setText(e.target.value)}
+      onBlur={() => {
+        const parsed = text.split(",").map((s) => s.trim()).filter(Boolean);
+        onChange(parsed);
+      }}
+      className={className}
+    />
+  );
+}
 
 export default function CVEditorForm() {
   const [data, setData] = useState<CVData | null>(null);
@@ -147,12 +176,43 @@ export default function CVEditorForm() {
     );
   }
 
-  function updateSkill(index: number, field: "category" | "items", value: string) {
+  function updateCertification(index: number, field: keyof Certification, value: string) {
+    setData((prev) => {
+      if (!prev) return prev;
+      const items = [...(prev.certifications || [])];
+      items[index] = { ...items[index], [field]: value };
+      return { ...prev, certifications: items };
+    });
+  }
+
+  function addCertification() {
+    setData((prev) =>
+      prev
+        ? {
+            ...prev,
+            certifications: [
+              ...(prev.certifications || []),
+              { id: uuidv4(), name: "", description: "", date: "" },
+            ],
+          }
+        : prev
+    );
+  }
+
+  function removeCertification(index: number) {
+    setData((prev) =>
+      prev
+        ? { ...prev, certifications: (prev.certifications || []).filter((_, i) => i !== index) }
+        : prev
+    );
+  }
+
+  function updateSkill(index: number, field: "category" | "items", value: string | string[]) {
     setData((prev) => {
       if (!prev) return prev;
       const items = [...prev.skills];
-      if (field === "items") {
-        items[index] = { ...items[index], items: value.split(",").map((s) => s.trim()).filter(Boolean) };
+      if (field === "items" && Array.isArray(value)) {
+        items[index] = { ...items[index], items: value };
       } else {
         items[index] = { ...items[index], [field]: value };
       }
@@ -195,6 +255,7 @@ export default function CVEditorForm() {
               ["email", "Email"],
               ["phone", "Phone"],
               ["location", "Location"],
+              ["birthDate", "Birth Date"],
             ] as const
           ).map(([field, label]) => (
             <div key={field}>
@@ -338,6 +399,41 @@ export default function CVEditorForm() {
         ))}
       </section>
 
+      {/* Certifications */}
+      <section className="bg-white rounded-xl shadow p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">Certifications</h2>
+          <button
+            type="button"
+            onClick={addCertification}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            + Add
+          </button>
+        </div>
+        {(data.certifications || []).map((cert, i) => (
+          <div key={cert.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div className="flex justify-between items-start">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Name</label>
+                  <input type="text" value={cert.name} onChange={(e) => updateCertification(i, "name", e.target.value)} className={inputClass} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Date</label>
+                  <input type="text" value={cert.date} onChange={(e) => updateCertification(i, "date", e.target.value)} className={inputClass} placeholder="YYYY-MM" />
+                </div>
+              </div>
+              <button type="button" onClick={() => removeCertification(i)} className="ml-3 text-red-500 hover:text-red-700 text-sm">✕</button>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Description</label>
+              <textarea value={cert.description} onChange={(e) => updateCertification(i, "description", e.target.value)} rows={2} className={inputClass} />
+            </div>
+          </div>
+        ))}
+      </section>
+
       {/* Skills */}
       <section className="bg-white rounded-xl shadow p-6 space-y-4">
         <div className="flex items-center justify-between">
@@ -360,7 +456,7 @@ export default function CVEditorForm() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">Items (comma-separated)</label>
-                  <input type="text" value={skill.items.join(", ")} onChange={(e) => updateSkill(i, "items", e.target.value)} className={inputClass} />
+                  <SkillItemsInput value={skill.items} onChange={(items) => updateSkill(i, "items", items)} className={inputClass} />
                 </div>
               </div>
               <button type="button" onClick={() => removeSkill(i)} className="text-red-500 hover:text-red-700 text-sm">✕</button>
@@ -380,6 +476,54 @@ export default function CVEditorForm() {
             {message}
           </p>
         )}
+        <button
+          type="button"
+          onClick={() => {
+            if (!data) return;
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "cv.json";
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          title="Download cv.json"
+          className="w-12 h-12 bg-white border border-gray-200 text-gray-600 rounded-full font-medium hover:bg-gray-50 transition shadow-lg flex items-center justify-center"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3" />
+          </svg>
+        </button>
+        <label
+          title="Upload cv.json"
+          className="w-12 h-12 bg-white border border-gray-200 text-gray-600 rounded-full font-medium hover:bg-gray-50 transition shadow-lg flex items-center justify-center cursor-pointer"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 8l-4-4m0 0L8 8m4-4v13" />
+          </svg>
+          <input
+            type="file"
+            accept=".json,application/json"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onload = () => {
+                try {
+                  const parsed = JSON.parse(reader.result as string) as CVData;
+                  setData(parsed);
+                  setMessage("JSON loaded — click Save to apply.");
+                } catch {
+                  setMessage("Invalid JSON file.");
+                }
+              };
+              reader.readAsText(file);
+              e.target.value = "";
+            }}
+          />
+        </label>
         <button
           onClick={handleSave}
           disabled={saving}

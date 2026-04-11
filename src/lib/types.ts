@@ -22,6 +22,7 @@ export interface PersonalInfo {
   email: string;
   phone: string;
   location: string;
+  birthDate?: string;
   links: Link[];
   summary: string;
   profileImage?: string;
@@ -52,9 +53,17 @@ export interface Skill {
   items: string[];
 }
 
+export interface Certification {
+  id: string;
+  name: string;
+  description: string;
+  date: string;
+}
+
 export interface CVData {
   personal: PersonalInfo;
   experience: Experience[];
   education: Education[];
+  certifications: Certification[];
   skills: Skill[];
 }
