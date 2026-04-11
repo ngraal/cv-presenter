@@ -1,0 +1,14 @@
+services:
+  cv-presenter:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set (min 32 chars)}
+      - DATA_DIR=/app/data
+    volumes:
+      - cv-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  cv-data:

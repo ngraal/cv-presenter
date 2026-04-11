@@ -1,0 +1,105 @@
+{
+  "personal": {
+    "fullName": "Jane Doe",
+    "title": "Software Engineer",
+    "email": "jane.doe@example.com",
+    "phone": "+1 555 123 4567",
+    "location": "Berlin, Germany",
+    "links": [
+      {
+        "id": "link-1",
+        "name": "Website",
+        "url": "https://janedoe.dev"
+      },
+      {
+        "id": "link-2",
+        "name": "LinkedIn",
+        "url": "https://linkedin.com/in/janedoe"
+      },
+      {
+        "id": "link-3",
+        "name": "GitHub",
+        "url": "https://github.com/janedoe"
+      }
+    ],
+    "summary": "Experienced software engineer with a passion for building elegant, scalable web applications. Specializing in TypeScript, React, and cloud-native architectures."
+  },
+  "experience": [
+    {
+      "id": "exp-1",
+      "company": "Acme Corp",
+      "position": "Senior Software Engineer",
+      "startDate": "2022-01",
+      "description": "Led development of microservices platform serving 2M+ users. Mentored junior developers and established coding standards."
+    },
+    {
+      "id": "exp-2",
+      "company": "StartupXYZ",
+      "position": "Full Stack Developer",
+      "startDate": "2019-06",
+      "endDate": "2021-12",
+      "description": "Built customer-facing SPA with React and Node.js backend. Implemented CI/CD pipelines and automated testing."
+    }
+  ],
+  "education": [
+    {
+      "id": "edu-1",
+      "institution": "Technical University of Berlin",
+      "degree": "M.Sc.",
+      "field": "Computer Science",
+      "startDate": "2017-10",
+      "endDate": "2019-05",
+      "description": "Focus on distributed systems and software engineering."
+    },
+    {
+      "id": "edu-2",
+      "institution": "University of Hamburg",
+      "degree": "B.Sc.",
+      "field": "Computer Science",
+      "startDate": "2014-10",
+      "endDate": "2017-09"
+    }
+  ],
+  "skills": [
+    {
+      "id": "skill-1",
+      "category": "Languages",
+      "items": [
+        "TypeScript",
+        "JavaScript",
+        "Python",
+        "Go"
+      ]
+    },
+    {
+      "id": "skill-2",
+      "category": "Frontend",
+      "items": [
+        "React",
+        "Next.js",
+        "Tailwind CSS",
+        "HTML/CSS"
+      ]
+    },
+    {
+      "id": "skill-3",
+      "category": "Backend",
+      "items": [
+        "Node.js",
+        "PostgreSQL",
+        "Redis",
+        "Docker"
+      ]
+    },
+    {
+      "id": "skill-4",
+      "category": "Tools",
+      "items": [
+        "Git",
+        "GitHub Actions",
+        "AWS",
+        "Terraform"
+      ]
+    }
+  ]
+}
