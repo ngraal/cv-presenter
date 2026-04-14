@@ -41,15 +41,15 @@ export default function TokenVerifier() {
   }
 
   const inputClass =
-    "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900 text-sm font-mono";
+    "w-full px-4 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-on-surface bg-surface-container-low text-sm font-mono";
 
   return (
-    <div className="bg-white rounded-xl shadow p-6 space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">Verify &amp; Decode Token</h2>
+    <div className="bg-surface-container rounded-xl p-6 space-y-4">
+      <h2 className="text-lg font-semibold text-on-surface">Verify &amp; Decode Token</h2>
 
       <form onSubmit={handleVerify} className="space-y-4">
         <div>
-          <label htmlFor="verify-token" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="verify-token" className="block text-sm font-medium text-on-surface-variant mb-1">
             Token
           </label>
           <input
@@ -66,7 +66,7 @@ export default function TokenVerifier() {
         <button
           type="submit"
           disabled={loading || !token.trim()}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          className="px-6 py-2 bg-primary text-on-primary rounded-lg font-medium hover:bg-primary-dim disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
           {loading ? "Verifying..." : "Verify"}
         </button>
@@ -76,14 +76,14 @@ export default function TokenVerifier() {
         <div
           className={`rounded-lg p-4 text-sm ${
             result.valid
-              ? "bg-green-50 border border-green-200"
-              : "bg-red-50 border border-red-200"
+              ? "bg-tertiary/10 border border-tertiary/30"
+              : "bg-error/10 border border-error/30"
           }`}
         >
           {result.valid && result.payload ? (
             <div className="space-y-2">
-              <p className="font-semibold text-green-700">Valid Token</p>
-              <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-gray-700">
+              <p className="font-semibold text-tertiary">Valid Token</p>
+              <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-on-surface-variant">
                 {result.payload.name && (
                   <>
                     <dt className="font-medium">Name</dt>
@@ -95,8 +95,8 @@ export default function TokenVerifier() {
                   <span
                     className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
                       result.payload.role === "admin"
-                        ? "bg-purple-100 text-purple-700"
-                        : "bg-blue-100 text-blue-700"
+                        ? "bg-primary/15 text-primary"
+                        : "bg-secondary/15 text-secondary"
                     }`}
                   >
                     {result.payload.role}
@@ -119,7 +119,7 @@ export default function TokenVerifier() {
               </dl>
             </div>
           ) : (
-            <p className="font-semibold text-red-700">
+            <p className="font-semibold text-error">
               {result.error || "Invalid or expired token"}
             </p>
           )}

@@ -18,10 +18,10 @@ export default function QRCodeDisplay({ url }: { url: string }) {
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">
+      <label className="block text-sm font-medium text-on-surface-variant mb-2">
         QR Code
       </label>
-      <div className="inline-block p-4 bg-white border border-gray-200 rounded-lg">
+      <div className="inline-block p-4 bg-white rounded-lg">
         <canvas ref={canvasRef} />
       </div>
     </div>

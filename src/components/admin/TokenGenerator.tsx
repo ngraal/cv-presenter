@@ -55,13 +55,13 @@ export default function TokenGenerator() {
     <div className="space-y-6">
       <form
         onSubmit={handleGenerate}
-        className="bg-white rounded-xl shadow p-6 space-y-4"
+        className="bg-surface-container rounded-xl p-6 space-y-4"
       >
-        <h2 className="text-lg font-semibold text-gray-900">Generate New Token</h2>
+        <h2 className="text-lg font-semibold text-on-surface">Generate New Token</h2>
 
         {!isMini && (
           <div>
-            <label htmlFor="token-name" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="token-name" className="block text-sm font-medium text-on-surface-variant mb-1">
               Name
             </label>
             <input
@@ -70,7 +70,7 @@ export default function TokenGenerator() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Company XYZ, John Doe"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900"
+              className="w-full px-4 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-on-surface bg-surface-container-low"
               required
             />
           </div>
@@ -79,14 +79,14 @@ export default function TokenGenerator() {
         <div className="grid grid-cols-3 gap-4">
           {!isMini && (
             <div>
-              <label htmlFor="token-role" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="token-role" className="block text-sm font-medium text-on-surface-variant mb-1">
                 Role
               </label>
               <select
                 id="token-role"
                 value={role}
                 onChange={(e) => setRole(e.target.value as "viewer" | "admin")}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900 bg-white"
+                className="w-full px-4 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-on-surface bg-surface-container-low"
               >
                 <option value="viewer">Viewer</option>
                 <option value="admin">Admin</option>
@@ -95,14 +95,14 @@ export default function TokenGenerator() {
           )}
 
           <div>
-            <label htmlFor="token-expiry" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="token-expiry" className="block text-sm font-medium text-on-surface-variant mb-1">
               Expires In
             </label>
             <select
               id="token-expiry"
               value={expiresIn}
               onChange={(e) => setExpiresIn(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900 bg-white"
+              className="w-full px-4 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-on-surface bg-surface-container-low"
             >
               <option value="1h">1 Hour</option>
               <option value="24h">24 Hours</option>
@@ -115,14 +115,14 @@ export default function TokenGenerator() {
           </div>
 
           <div>
-            <label htmlFor="token-format" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="token-format" className="block text-sm font-medium text-on-surface-variant mb-1">
               Format
             </label>
             <select
               id="token-format"
               value={format}
               onChange={(e) => setFormat(e.target.value as "jwt" | "compact" | "mini")}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900 bg-white"
+              className="w-full px-4 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-on-surface bg-surface-container-low"
             >
               <option value="mini">Mini (8 chars, viewer only)</option>
               <option value="compact">Compact (short, better QR)</option>
@@ -132,7 +132,7 @@ export default function TokenGenerator() {
         </div>
 
         {error && (
-          <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">
+          <p className="text-sm text-error bg-error/10 px-3 py-2 rounded-lg">
             {error}
           </p>
         )}
@@ -140,18 +140,18 @@ export default function TokenGenerator() {
         <button
           type="submit"
           disabled={loading || (!isMini && !name.trim())}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          className="px-6 py-2 bg-primary text-on-primary rounded-lg font-medium hover:bg-primary-dim disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
           {loading ? "Generating..." : "Generate Token"}
         </button>
       </form>
 
       {generatedToken && (
-        <div className="bg-white rounded-xl shadow p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Generated Token</h2>
+        <div className="bg-surface-container rounded-xl p-6 space-y-4">
+          <h2 className="text-lg font-semibold text-on-surface">Generated Token</h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-on-surface-variant mb-1">
               Token
             </label>
             <div className="flex gap-2">
@@ -159,11 +159,11 @@ export default function TokenGenerator() {
                 type="text"
                 readOnly
                 value={generatedToken}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 text-sm font-mono"
+                className="flex-1 px-4 py-2 border border-outline-variant rounded-lg bg-surface-container-low text-on-surface text-sm font-mono"
               />
               <button
                 onClick={() => navigator.clipboard.writeText(generatedToken)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition text-sm"
+                className="px-4 py-2 border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface-container-high transition text-sm"
               >
                 Copy
               </button>
@@ -171,7 +171,7 @@ export default function TokenGenerator() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-on-surface-variant mb-1">
               Full URL
             </label>
             <div className="flex gap-2">
@@ -179,11 +179,11 @@ export default function TokenGenerator() {
                 type="text"
                 readOnly
                 value={tokenUrl}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 text-sm font-mono"
+                className="flex-1 px-4 py-2 border border-outline-variant rounded-lg bg-surface-container-low text-on-surface text-sm font-mono"
               />
               <button
                 onClick={() => navigator.clipboard.writeText(tokenUrl)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition text-sm"
+                className="px-4 py-2 border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface-container-high transition text-sm"
               >
                 Copy
               </button>

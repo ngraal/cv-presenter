@@ -16,7 +16,7 @@ export default async function AdminLayout({
   if (!payload || payload.role !== "admin") redirect("/");
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen section-gradient-1">
       <main className="max-w-5xl mx-auto px-4 py-8">{children}</main>
     </div>
   );
