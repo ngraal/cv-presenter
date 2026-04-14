@@ -1,35 +1,37 @@
 import type { CVData } from "@/lib/types";
 import PersonalHeader from "./PersonalHeader";
-import ExperienceSection from "./ExperienceSection";
-import EducationSection from "./EducationSection";
-import CertificationsSection from "./CertificationsSection";
+import TimelineSection from "./TimelineSection";
 import SkillsSection from "./SkillsSection";
 import FloatingDownloadButton from "./FloatingDownloadButton";
 
 export default function CVCard({
   data,
-  hasPdf,
+  pdfFiles,
   hasImage,
 }: {
   data: CVData;
-  hasPdf: boolean;
+  pdfFiles: string[];
   hasImage: boolean;
 }) {
   return (
     <>
       <main className="min-h-screen font-body selection:bg-primary selection:text-on-primary section-gradient-1">
         <PersonalHeader data={data.personal} hasImage={hasImage} />
-        <hr className="border-t border-outline-variant/20 max-w-5xl mx-auto" />
-        <ExperienceSection items={data.experience} />
-        <hr className="border-t border-outline-variant/20 max-w-5xl mx-auto" />
-        <EducationSection items={data.education} />
-        <hr className="border-t border-outline-variant/20 max-w-5xl mx-auto" />
-        <CertificationsSection items={data.certifications} />
-        <hr className="border-t border-outline-variant/20 max-w-5xl mx-auto" />
-        <SkillsSection items={data.skills} />
+        {data.sections.map((section, i) => (
+          <div key={i}>
+            <hr className="border-t border-outline-variant/50 max-w-5xl mx-auto" />
+            <TimelineSection section={section} index={i} />
+          </div>
+        ))}
+        {data.skillSections.map((section, i) => (
+          <div key={`skills-${i}`}>
+            <hr className="border-t border-outline-variant/50 max-w-5xl mx-auto" />
+            <SkillsSection section={section} index={data.sections.length + i} />
+          </div>
+        ))}
       </main>
 
-      {hasPdf && <FloatingDownloadButton />}
+      {pdfFiles.length > 0 && <FloatingDownloadButton pdfFiles={pdfFiles} />}
     </>
   );
 }

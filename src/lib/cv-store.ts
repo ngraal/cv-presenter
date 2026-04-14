@@ -1,6 +1,6 @@
 import "server-only";
 
-import { readFile, writeFile, mkdir, access, unlink } from "fs/promises";
+import { readFile, writeFile, mkdir, access, unlink, readdir } from "fs/promises";
 import path from "path";
 import type { CVData } from "./types";
 
@@ -8,85 +8,6 @@ const DATA_DIR = process.env.DATA_DIR || "/app/data";
 const CV_JSON_PATH = path.join(DATA_DIR, "cv.json");
 const CV_PDF_PATH = path.join(DATA_DIR, "cv.pdf");
 const PROFILE_IMAGE_PATH = path.join(DATA_DIR, "profile-image");
-
-const DEFAULT_CV: CVData = {
-  personal: {
-    fullName: "Jane Doe",
-    title: "Software Engineer",
-    email: "jane.doe@example.com",
-    phone: "+1 555 123 4567",
-    location: "Berlin, Germany",
-    birthDate: "",
-    links: [
-      { id: "link-1", name: "Website", url: "https://janedoe.dev" },
-      { id: "link-2", name: "LinkedIn", url: "https://linkedin.com/in/janedoe" },
-      { id: "link-3", name: "GitHub", url: "https://github.com/janedoe" },
-    ],
-    summary:
-      "Experienced software engineer with a passion for building elegant, scalable web applications. Specializing in TypeScript, React, and cloud-native architectures.",
-  },
-  experience: [
-    {
-      id: "exp-1",
-      company: "Acme Corp",
-      position: "Senior Software Engineer",
-      startDate: "2022-01",
-      description:
-        "Led development of microservices platform serving 2M+ users. Mentored junior developers and established coding standards.",
-    },
-    {
-      id: "exp-2",
-      company: "StartupXYZ",
-      position: "Full Stack Developer",
-      startDate: "2019-06",
-      endDate: "2021-12",
-      description:
-        "Built customer-facing SPA with React and Node.js backend. Implemented CI/CD pipelines and automated testing.",
-    },
-  ],
-  education: [
-    {
-      id: "edu-1",
-      institution: "Technical University of Berlin",
-      degree: "M.Sc.",
-      field: "Computer Science",
-      startDate: "2017-10",
-      endDate: "2019-05",
-      description: "Focus on distributed systems and software engineering.",
-    },
-    {
-      id: "edu-2",
-      institution: "University of Hamburg",
-      degree: "B.Sc.",
-      field: "Computer Science",
-      startDate: "2014-10",
-      endDate: "2017-09",
-    },
-  ],
-  skills: [
-    {
-      id: "skill-1",
-      category: "Languages",
-      items: ["TypeScript", "JavaScript", "Python", "Go"],
-    },
-    {
-      id: "skill-2",
-      category: "Frontend",
-      items: ["React", "Next.js", "Tailwind CSS", "HTML/CSS"],
-    },
-    {
-      id: "skill-3",
-      category: "Backend",
-      items: ["Node.js", "PostgreSQL", "Redis", "Docker"],
-    },
-    {
-      id: "skill-4",
-      category: "Tools",
-      items: ["Git", "GitHub Actions", "AWS", "Terraform"],
-    },
-  ],
-  certifications: [],
-};
 
 async function ensureDataDir(): Promise<void> {
   try {
@@ -96,20 +17,79 @@ async function ensureDataDir(): Promise<void> {
   }
 }
 
-export async function getCVData(): Promise<CVData> {
+export async function getCVData(): Promise<CVData | null> {
   await ensureDataDir();
   try {
     const data = await readFile(CV_JSON_PATH, "utf-8");
-    const parsed = JSON.parse(data) as Partial<CVData>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const parsed = JSON.parse(data) as any;
+
+    // New format — return directly
+    if (parsed.sections && parsed.skillSections) {
+      return parsed as CVData;
+    }
+
+    // Migrate: new sections but old flat skills array
+    if (parsed.sections && parsed.skills && !parsed.skillSections) {
+      return {
+        ...parsed,
+        skillSections: [{ title: "Skills", skills: parsed.skills }],
+        skills: undefined,
+      } as unknown as CVData;
+    }
+
+    // Migrate legacy format (experience/education/certifications) → sections
+    const sections: CVData["sections"] = [];
+    if (parsed.experience?.length) {
+      sections.push({
+        title: "Experience",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        items: parsed.experience.map((e: any) => ({
+          title: e.company,
+          subtitle: e.position,
+          startDate: e.startDate,
+          endDate: e.endDate,
+          description: e.description,
+        })),
+      });
+    }
+    if (parsed.education?.length) {
+      sections.push({
+        title: "Education",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        items: parsed.education.map((e: any) => ({
+          title: e.institution,
+          subtitle: [e.degree, e.field].filter(Boolean).join(" "),
+          startDate: e.startDate,
+          endDate: e.endDate,
+          description: e.description,
+        })),
+      });
+    }
+    if (parsed.certifications?.length) {
+      sections.push({
+        title: "Certifications",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        items: parsed.certifications.map((c: any) => ({
+          title: c.name,
+          endDate: c.date,
+          description: c.description,
+        })),
+      });
+    }
+
+    if (sections.length === 0 && !parsed.skills?.length) {
+      return null;
+    }
+
     return {
-      ...DEFAULT_CV,
-      ...parsed,
-      personal: { ...DEFAULT_CV.personal, ...parsed.personal },
-      certifications: parsed.certifications ?? [],
+      personal: parsed.personal ?? { fullName: "", title: "", email: "", phone: "", location: "", links: [], summary: "" },
+      sections,
+      skillSections: parsed.skills?.length ? [{ title: "Skills", skills: parsed.skills }] : [],
     };
-  } catch {
-    await writeFile(CV_JSON_PATH, JSON.stringify(DEFAULT_CV, null, 2), "utf-8");
-    return DEFAULT_CV;
+  } catch (error) {
+    console.error("[cv-store] Failed to read cv.json from", CV_JSON_PATH, error);
+    return null;
   }
 }
 
@@ -177,6 +157,55 @@ export async function deletePDF(): Promise<void> {
     await unlink(CV_PDF_PATH);
   } catch {
     // file doesn't exist, ignore
+  }
+}
+
+export async function deletePDFByName(name: string): Promise<void> {
+  const safe = path.basename(name);
+  const filePath = path.join(DATA_DIR, `${safe}.pdf`);
+  const resolved = path.resolve(filePath);
+  if (!resolved.startsWith(path.resolve(DATA_DIR))) return;
+  try {
+    await unlink(filePath);
+  } catch {
+    // file doesn't exist, ignore
+  }
+}
+
+export async function savePDFByName(
+  name: string,
+  buffer: Buffer
+): Promise<void> {
+  await ensureDataDir();
+  const safe = path.basename(name);
+  const filePath = path.join(DATA_DIR, `${safe}.pdf`);
+  const resolved = path.resolve(filePath);
+  if (!resolved.startsWith(path.resolve(DATA_DIR))) return;
+  await writeFile(filePath, buffer);
+}
+
+export async function listPDFs(): Promise<string[]> {
+  try {
+    const entries = await readdir(DATA_DIR);
+    return entries
+      .filter((f) => f.toLowerCase().endsWith(".pdf"))
+      .map((f) => f.replace(/\.pdf$/i, ""));
+  } catch {
+    return [];
+  }
+}
+
+export async function getPDFByName(
+  name: string
+): Promise<Buffer | null> {
+  const safe = path.basename(name);
+  const filePath = path.join(DATA_DIR, `${safe}.pdf`);
+  const resolved = path.resolve(filePath);
+  if (!resolved.startsWith(path.resolve(DATA_DIR))) return null;
+  try {
+    return await readFile(filePath);
+  } catch {
+    return null;
   }
 }
 

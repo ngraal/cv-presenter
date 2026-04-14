@@ -11,7 +11,6 @@ export interface TokenPayload {
 }
 
 export interface Link {
-  id: string;
   name: string;
   url: string;
 }
@@ -28,42 +27,32 @@ export interface PersonalInfo {
   profileImage?: string;
 }
 
-export interface Experience {
-  id: string;
-  company: string;
-  position: string;
-  startDate: string;
-  endDate?: string;
-  description: string;
-}
-
-export interface Education {
-  id: string;
-  institution: string;
-  degree: string;
-  field: string;
-  startDate: string;
+export interface SectionItem {
+  title: string;
+  subtitle?: string;
+  startDate?: string;
   endDate?: string;
   description?: string;
 }
 
+export interface CVSection {
+  title: string;
+  items: SectionItem[];
+}
+
 export interface Skill {
-  id: string;
   category: string;
+  icon?: string;
   items: string[];
 }
 
-export interface Certification {
-  id: string;
-  name: string;
-  description: string;
-  date: string;
+export interface SkillSection {
+  title: string;
+  skills: Skill[];
 }
 
 export interface CVData {
   personal: PersonalInfo;
-  experience: Experience[];
-  education: Education[];
-  certifications: Certification[];
-  skills: Skill[];
+  sections: CVSection[];
+  skillSections: SkillSection[];
 }

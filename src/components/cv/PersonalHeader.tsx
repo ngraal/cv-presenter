@@ -1,5 +1,6 @@
 import type { PersonalInfo } from "@/lib/types";
 import type { ReactNode } from "react";
+import { formatDate } from "@/lib/format-date";
 
 const BRAND_ICONS: Record<string, ReactNode> = {
   github: (
@@ -82,7 +83,7 @@ export default function PersonalHeader({
                   <span className="material-symbols-outlined text-primary text-lg">
                     cake
                   </span>
-                  <span>{data.birthDate}</span>
+                  <span>{formatDate(data.birthDate)}</span>
                 </div>
               )}
               {data.email && (
@@ -124,7 +125,7 @@ export default function PersonalHeader({
             <div className="flex flex-wrap justify-center md:justify-start gap-3">
               {data.links.map((link) => (
                 <a
-                  key={link.id}
+                  key={link.name}
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
