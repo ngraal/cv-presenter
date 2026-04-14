@@ -8,8 +8,14 @@ const FAKE_MINI_TOKEN = "xK7m$q2b";
 
 function BusinessCard({
   cardRef,
+  fullName,
+  title,
+  email,
 }: {
   cardRef: React.RefObject<HTMLDivElement | null>;
+  fullName: string;
+  title: string;
+  email: string;
 }) {
   const [qrSrc, setQrSrc] = useState<string>("");
 
@@ -35,10 +41,10 @@ function BusinessCard({
       <div className="flex flex-col justify-between">
         <div style={{ transform: "translateZ(30px)" }}>
           <h2 className="font-headline text-2xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
-            Nils Graalmann
+            {fullName}
           </h2>
           <p className="text-secondary text-sm md:text-lg font-bold font-headline mt-0.5 md:mt-1">
-            Senior Software Engineer
+            {title}
           </p>
         </div>
 
@@ -46,7 +52,7 @@ function BusinessCard({
           className="text-on-surface-variant text-xs md:text-sm"
           style={{ transform: "translateZ(20px)" }}
         >
-          <span>career@nils-graalmann.com</span>
+          <span>{email}</span>
         </div>
       </div>
 
@@ -65,7 +71,15 @@ function BusinessCard({
   );
 }
 
-export default function TokenEntryForm() {
+export default function LandingPage({
+  fullName,
+  title,
+  email,
+}: {
+  fullName: string;
+  title: string;
+  email: string;
+}) {
   const [token, setToken] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -124,7 +138,7 @@ export default function TokenEntryForm() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center section-gradient-1 px-4">
       <div className="relative mb-0">
-        <BusinessCard cardRef={cardRef} />
+        <BusinessCard cardRef={cardRef} fullName={fullName} title={title} email={email} />
 
         {/* Sketch-style animated arrow from example token to input */}
         <svg
