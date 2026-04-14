@@ -405,6 +405,14 @@ export default function CVEditorForm() {
                 className={inputClass}
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-on-surface-variant mb-1">Info Text (Landing Page)</label>
+              <AutoTextarea
+                value={data.personal.infoText ?? ""}
+                onChange={(e) => updatePersonal("infoText", e.target.value)}
+                className={inputClass}
+              />
+            </div>
           </div>
         </div>
       </section>

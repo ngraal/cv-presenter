@@ -24,6 +24,7 @@ export interface PersonalInfo {
   birthDate?: string;
   links: Link[];
   summary: string;
+  infoText?: string;
   profileImage?: string;
 }
 

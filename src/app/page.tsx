@@ -38,6 +38,7 @@ export default async function HomePage() {
         fullName={cvData.personal.fullName}
         title={cvData.personal.title}
         email={cvData.personal.email}
+        infoText={cvData.personal.infoText}
       />
     );
   }
@@ -49,6 +50,7 @@ export default async function HomePage() {
         fullName={cvData.personal.fullName}
         title={cvData.personal.title}
         email={cvData.personal.email}
+        infoText={cvData.personal.infoText}
       />
     );
   }

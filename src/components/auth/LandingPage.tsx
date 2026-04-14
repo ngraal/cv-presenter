@@ -75,10 +75,12 @@ export default function LandingPage({
   fullName,
   title,
   email,
+  infoText,
 }: {
   fullName: string;
   title: string;
   email: string;
+  infoText?: string;
 }) {
   const [token, setToken] = useState("");
   const [error, setError] = useState("");
@@ -224,9 +226,8 @@ export default function LandingPage({
             {showInfo && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowInfo(false)} />
-                <div className="absolute right-full top-1/2 -translate-y-1/2 mr-3 md:mr-6 z-50 w-52 md:w-84 p-3 md:p-5 rounded-lg glass-card text-xs md:text-sm text-on-surface-variant leading-relaxed shadow-xl">
-                  <p>Bitte geben Sie den Code von der Visitenkarte ein, die Ihnen übergeben wurde.</p>
-                  <p className="mt-1.5">Sollten Sie diese nicht haben, kontaktieren Sie mich bitte über die angegebene E-Mail Adresse.</p>
+                <div className="absolute right-full top-1/2 -translate-y-1/2 mr-3 md:mr-6 z-50 w-52 md:w-84 p-3 md:p-5 rounded-lg glass-card text-xs md:text-sm text-on-surface-variant leading-relaxed shadow-xl whitespace-pre-line">
+                  {infoText || "Enter the access code you received."}
                   <div className="absolute left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-[6px] border-y-transparent border-l-[6px] border-l-outline-variant/15" />
                 </div>
               </>
