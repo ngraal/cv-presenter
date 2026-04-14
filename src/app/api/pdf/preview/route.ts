@@ -1,8 +1,12 @@
-import { NextResponse } from "next/server";
-import { getPDFBuffer } from "@/lib/cv-store";
+import { NextRequest, NextResponse } from "next/server";
+import { getPDFByName } from "@/lib/cv-store";
 
-export async function GET() {
-  const buffer = await getPDFBuffer();
+export async function GET(request: NextRequest) {
+  const fileName = request.nextUrl.searchParams.get("file");
+  if (!fileName) {
+    return NextResponse.json({ error: "Missing file parameter" }, { status: 400 });
+  }
+  const buffer = await getPDFByName(fileName);
   if (!buffer) {
     return NextResponse.json(
       { error: "No PDF available" },

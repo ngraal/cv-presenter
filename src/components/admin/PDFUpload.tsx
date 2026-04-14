@@ -1,26 +1,40 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export default function PDFUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
-  const [hasPdf, setHasPdf] = useState(false);
-  const [pdfKey, setPdfKey] = useState(0);
+  const [pdfFiles, setPdfFiles] = useState<string[]>([]);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [previewKey, setPreviewKey] = useState(0);
+
+  const loadFiles = useCallback(() => {
+    fetch("/api/pdf")
+      .then((res) => res.json())
+      .then((files: string[]) => {
+        setPdfFiles(files);
+        if (files.length > 0 && (!selected || !files.includes(selected))) {
+          setSelected(files[0]);
+        }
+        if (files.length === 0) setSelected(null);
+      })
+      .catch(() => {});
+  }, [selected]);
 
   useEffect(() => {
-    fetch("/api/pdf", { method: "HEAD" }).then((res) => {
-      setHasPdf(res.ok);
-    }).catch(() => {});
-  }, []);
+    loadFiles();
+  }, [loadFiles]);
 
-  async function handleDelete() {
+  async function handleDelete(name: string) {
     try {
-      const res = await fetch("/api/pdf", { method: "DELETE" });
+      const res = await fetch(`/api/pdf?file=${encodeURIComponent(name)}`, {
+        method: "DELETE",
+      });
       if (res.ok) {
-        setHasPdf(false);
         setMessage("");
+        loadFiles();
       }
     } catch {}
   }
@@ -42,10 +56,12 @@ export default function PDFUpload() {
       });
 
       if (res.ok) {
+        const data = await res.json();
         setMessage("PDF uploaded successfully!");
-        setHasPdf(true);
         setFile(null);
-        setPdfKey((k) => k + 1);
+        setPreviewKey((k) => k + 1);
+        loadFiles();
+        if (data.name) setSelected(data.name);
       } else {
         const data = await res.json();
         setMessage(data.error || "Upload failed.");
@@ -58,50 +74,77 @@ export default function PDFUpload() {
   }
 
   return (
-    <section className="bg-white rounded-xl shadow p-6 space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">PDF Resume</h2>
+    <section className="bg-surface-container rounded-xl p-6 space-y-4">
+      <h2 className="text-lg font-semibold text-on-surface">PDF Documents</h2>
 
-      <div className="flex gap-4">
-        {/* Preview thumbnail */}
-        {hasPdf && (
-          <div className="shrink-0 w-28 relative">
+      <div className="flex gap-4 min-h-0">
+        {/* Preview — A4 aspect ratio */}
+        {selected && (
+          <div className="shrink-0 w-64 self-stretch">
             <iframe
-              key={pdfKey}
-              src={`/api/pdf/preview?v=${pdfKey}`}
-              className="w-28 h-36 rounded-lg border border-gray-200 pointer-events-none"
+              key={`${selected}-${previewKey}`}
+              src={`/api/pdf/preview?file=${encodeURIComponent(selected)}&v=${previewKey}`}
+              className="w-full h-full min-h-[22rem] rounded-lg border border-outline-variant"
               title="PDF Preview"
             />
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600 transition shadow"
-              title="Delete PDF"
-            >
-              ✕
-            </button>
           </div>
         )}
 
-        {/* Upload form */}
-        <div className="flex-1 space-y-3">
+        <div className="flex-1 space-y-3 min-h-0">
+          {/* File list — scrollable after 5 items */}
+          {pdfFiles.length > 0 && (
+            <ul className="space-y-1 max-h-52 overflow-y-auto">
+              {pdfFiles.map((name) => (
+                <li
+                  key={name}
+                  className={`flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm cursor-pointer transition ${
+                    selected === name
+                      ? "bg-primary/10 text-primary font-medium"
+                      : "text-on-surface-variant hover:bg-surface-container-high"
+                  }`}
+                  onClick={() => setSelected(name)}
+                >
+                  <span className="truncate">{name}</span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(name);
+                    }}
+                    className="shrink-0 w-5 h-5 text-error/60 hover:text-error transition text-xs"
+                    title={`Delete ${name}`}
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {/* Upload form */}
           <form onSubmit={handleUpload} className="space-y-3">
             <div>
-              <label htmlFor="pdf-file" className="block text-sm font-medium text-gray-700 mb-1">
-                Upload new PDF
+              <label
+                htmlFor="pdf-file"
+                className="block text-sm font-medium text-on-surface-variant mb-1"
+              >
+                Upload PDF
               </label>
               <input
                 id="pdf-file"
                 type="file"
                 accept="application/pdf"
                 onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                className="block w-full text-sm text-gray-700 file:mr-4 file:px-4 file:py-2 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                className="block w-full text-sm text-on-surface-variant file:mr-4 file:px-4 file:py-2 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
               />
             </div>
 
             {message && (
               <p
                 className={`text-sm ${
-                  message.includes("success") ? "text-green-600" : "text-red-600"
+                  message.includes("success")
+                    ? "text-tertiary"
+                    : "text-error"
                 }`}
               >
                 {message}
@@ -111,7 +154,7 @@ export default function PDFUpload() {
             <button
               type="submit"
               disabled={uploading || !file}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="px-6 py-2 bg-primary text-on-primary rounded-lg font-medium hover:bg-primary-dim disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               {uploading ? "Uploading..." : "Upload PDF"}
             </button>

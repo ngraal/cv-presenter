@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { savePDF } from "@/lib/cv-store";
+import { savePDFByName } from "@/lib/cv-store";
 
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -28,8 +28,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const name = file.name.replace(/\.pdf$/i, "");
   const arrayBuffer = await file.arrayBuffer();
-  await savePDF(Buffer.from(arrayBuffer));
+  await savePDFByName(name, Buffer.from(arrayBuffer));
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, name });
 }
