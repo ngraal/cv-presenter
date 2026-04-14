@@ -11,23 +11,20 @@ function BusinessCard({
 }: {
   cardRef: React.RefObject<HTMLDivElement | null>;
 }) {
-  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [qrSrc, setQrSrc] = useState<string>("");
 
   useEffect(() => {
-    if (qrCanvasRef.current) {
-      const url = window.location.origin;
-      QRCode.toCanvas(qrCanvasRef.current, url, {
-        width: 120,
-        margin: 0,
-        color: { dark: "#f1f3fc", light: "#00000000" },
-      });
-    }
+    QRCode.toDataURL(window.location.origin, {
+      width: 256,
+      margin: 0,
+      color: { dark: "#f1f3fc", light: "#00000000" },
+    }).then(setQrSrc);
   }, []);
 
   return (
     <div
       ref={cardRef}
-      className="w-95 max-w-[90vw] aspect-1.75/1 glass-card p-8 flex justify-between cursor-default select-none"
+      className="w-95 md:w-142.5 max-w-[90vw] aspect-1.75/1 glass-card p-6 md:p-12 flex justify-between cursor-default select-none"
       style={{
         transformStyle: "preserve-3d",
         transition: "transform 0.15s ease-out, box-shadow 0.15s ease-out",
@@ -37,16 +34,16 @@ function BusinessCard({
     >
       <div className="flex flex-col justify-between">
         <div style={{ transform: "translateZ(30px)" }}>
-          <h2 className="font-headline text-2xl font-extrabold tracking-tight text-white leading-tight">
+          <h2 className="font-headline text-2xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
             Nils Graalmann
           </h2>
-          <p className="text-secondary text-sm font-bold font-headline mt-0.5">
+          <p className="text-secondary text-sm md:text-lg font-bold font-headline mt-0.5 md:mt-1">
             Senior Software Engineer
           </p>
         </div>
 
         <div
-          className="text-on-surface-variant text-xs"
+          className="text-on-surface-variant text-xs md:text-sm"
           style={{ transform: "translateZ(20px)" }}
         >
           <span>career@nils-graalmann.com</span>
@@ -54,11 +51,13 @@ function BusinessCard({
       </div>
 
       <div
-        className="flex flex-col items-center justify-center shrink-0"
+        className="flex flex-col items-center justify-center shrink-0 self-stretch translate-y-[1em]"
         style={{ transform: "translateZ(25px)" }}
       >
-        <canvas ref={qrCanvasRef} className="w-25 h-25" />
-        <span className="text-on-surface-variant/70 text-[10px] font-mono tracking-wide mt-1">
+        {qrSrc && (
+          <img src={qrSrc} alt="QR Code" className="h-[65%] aspect-square" />
+        )}
+        <span className="text-on-surface-variant/70 text-[10px] md:text-[13px] font-mono tracking-wide mt-1 md:mt-2.5">
           {FAKE_MINI_TOKEN}
         </span>
       </div>
@@ -124,7 +123,6 @@ export default function TokenEntryForm() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center section-gradient-1 px-4">
-      <div className="flex flex-col items-center" style={{ zoom: 1.5 }}>
       <div className="relative mb-0">
         <BusinessCard cardRef={cardRef} />
 
@@ -134,7 +132,7 @@ export default function TokenEntryForm() {
           height="64"
           viewBox="0 0 80 64"
           fill="none"
-          className="absolute -bottom-7 right-0 pointer-events-none"
+          className="absolute -bottom-7 md:-bottom-10 right-0 pointer-events-none md:w-30 md:h-24"
           style={{ overflow: "visible" }}
         >
           <path
@@ -193,18 +191,18 @@ export default function TokenEntryForm() {
         </svg>
       </div>
 
-      <div className="h-6" />
+      <div className="h-6 md:h-9" />
 
-      <form onSubmit={handleSubmit} className="relative w-75 max-w-[90vw] space-y-3">
+      <form onSubmit={handleSubmit} className="relative w-75 md:w-112.5 max-w-[90vw] space-y-3 md:space-y-4">
         <div className="relative flex items-center">
-          <div className="absolute -left-8 shrink-0">
+          <div className="absolute -left-7 md:-left-12 shrink-0">
             <button
               type="button"
               onClick={() => setShowInfo((v) => !v)}
               className="text-on-surface-variant/50 hover:text-on-surface-variant transition"
               aria-label="Info"
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-4 h-4 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
               </svg>
             </button>
@@ -212,7 +210,7 @@ export default function TokenEntryForm() {
             {showInfo && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowInfo(false)} />
-                <div className="absolute right-full top-1/2 -translate-y-1/2 mr-4 z-50 w-56 p-3 rounded-lg glass-card text-xs text-on-surface-variant leading-relaxed shadow-xl">
+                <div className="absolute right-full top-1/2 -translate-y-1/2 mr-3 md:mr-6 z-50 w-52 md:w-84 p-3 md:p-5 rounded-lg glass-card text-xs md:text-sm text-on-surface-variant leading-relaxed shadow-xl">
                   <p>Bitte geben Sie den Code von der Visitenkarte ein, die Ihnen übergeben wurde.</p>
                   <p className="mt-1.5">Sollten Sie diese nicht haben, kontaktieren Sie mich bitte über die angegebene E-Mail Adresse.</p>
                   <div className="absolute left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-[6px] border-y-transparent border-l-[6px] border-l-outline-variant/15" />
@@ -226,7 +224,7 @@ export default function TokenEntryForm() {
             value={token}
             onChange={(e) => setToken(e.target.value)}
             placeholder="Code eingeben"
-            className="w-full pl-4 pr-20 py-3 bg-surface-container border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary/50 outline-none transition text-on-surface placeholder-on-surface-variant/50 text-sm"
+            className="w-full pl-4 md:pl-6 pr-18 md:pr-28 py-3 md:py-5 bg-surface-container border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary/50 outline-none transition text-on-surface placeholder-on-surface-variant/50 text-sm md:text-base"
             disabled={loading}
             autoFocus
           />
@@ -234,12 +232,12 @@ export default function TokenEntryForm() {
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-10 text-on-surface-variant/60 hover:text-on-surface transition"
+            className="absolute right-9 md:right-14 text-on-surface-variant/60 hover:text-on-surface transition"
             tabIndex={-1}
             aria-label={showPassword ? "Hide token" : "Show token"}
           >
             <svg
-              className="w-4 h-4"
+              className="w-4 h-4 md:w-6 md:h-6"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -271,12 +269,12 @@ export default function TokenEntryForm() {
           <button
             type="submit"
             disabled={loading || !token.trim()}
-            className="absolute right-2 text-on-surface-variant/60 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition"
+            className="absolute right-2 md:right-3 text-on-surface-variant/60 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition"
             aria-label="Submit"
           >
             {loading ? (
               <svg
-                className="w-5 h-5 animate-spin"
+                className="w-5 h-5 md:w-7 md:h-7 animate-spin"
                 fill="none"
                 viewBox="0 0 24 24"
               >
@@ -296,7 +294,7 @@ export default function TokenEntryForm() {
               </svg>
             ) : (
               <svg
-                className="w-5 h-5"
+                className="w-5 h-5 md:w-7 md:h-7"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -313,12 +311,11 @@ export default function TokenEntryForm() {
         </div>
 
         {error && (
-          <p className="text-sm text-error bg-error-container/20 px-3 py-2 rounded-lg">
+          <p className="text-sm md:text-base text-error bg-error-container/20 px-3 md:px-5 py-2 md:py-3 rounded-lg">
             {error}
           </p>
         )}
       </form>
-      </div>
     </div>
   );
 }
