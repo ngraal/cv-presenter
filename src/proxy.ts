@@ -45,7 +45,7 @@ async function verifyTokenMiddleware(
   }
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
   // Skip auth for static assets and Next.js internals
