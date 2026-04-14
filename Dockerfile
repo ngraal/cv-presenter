@@ -9,7 +9,7 @@ FROM base AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
-COPY . .
+COPY --exclude=example-data . .
 RUN npm run build
 
 FROM base AS runner
@@ -21,7 +21,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Seed /app/data with example files — Docker named volumes auto-populate from this on first run
 RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
+COPY --chown=nextjs:nodejs example-data/ /app/data/
 
 USER nextjs
 EXPOSE 3000

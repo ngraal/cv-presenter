@@ -1,0 +1,154 @@
+{
+  "personal": {
+    "fullName": "Erika Mustermann",
+    "title": "Senior Project Manager",
+    "email": "erika.mustermann@example.de",
+    "phone": "+49 170 1234567",
+    "location": "Munich, Germany",
+    "birthDate": "1988-03",
+    "links": [
+      {
+        "name": "LinkedIn",
+        "url": "https://linkedin.com/in/erikamustermann"
+      },
+      {
+        "name": "XING",
+        "url": "https://xing.com/profile/erika-mustermann"
+      },
+      {
+        "name": "GitHub",
+        "url": "https://github.com/erikamustermann"
+      }
+    ],
+    "summary": "Experienced project manager with a strong technical background in frontend development. I combine agile methodology with technical expertise to lead cross-functional teams to peak performance and successfully deliver complex digital transformation projects."
+  },
+  "sections": [
+    {
+      "title": "Experience",
+      "items": [
+        {
+          "title": "TechVision GmbH",
+          "subtitle": "Senior Project Manager",
+          "startDate": "2022-04",
+          "description": "Leading a portfolio of **three parallel digital transformation projects** with a total budget of \u20ac2.5M. Managing cross-functional teams (15\u201320 people) using Scrum and SAFe.\n\n- Introduced a company-wide design system in collaboration with UX and frontend teams\n- Reduced time-to-market by 30% through optimized release processes\n- Stakeholder management at C-level"
+        },
+        {
+          "title": "Digital Solutions AG",
+          "subtitle": "Project Manager",
+          "startDate": "2019-09",
+          "endDate": "2022-03",
+          "description": "Responsible for planning and delivery of client projects in the e-commerce space. Close collaboration with development teams and product owners.\n\n- Migrated a legacy shop to a modern **React/Next.js** architecture\n- Introduced Jira and Confluence as central project management tools\n- Built an internal training program for agile methods"
+        },
+        {
+          "title": "WebKraft Studios",
+          "subtitle": "Frontend Developer",
+          "startDate": "2016-03",
+          "endDate": "2019-08",
+          "description": "Developed responsive web applications for mid-sized clients. Close coordination with designers and backend developers.\n\n- Built SPAs with **React** and **TypeScript**\n- Implemented component libraries and style guides\n- Mentored working students and interns"
+        },
+        {
+          "title": "Agentur Kreativpixel",
+          "subtitle": "Junior Frontend Developer",
+          "startDate": "2014-04",
+          "endDate": "2016-02",
+          "description": "Entry into professional web development. Built client websites and landing pages.\n\n- HTML, CSS, JavaScript and jQuery\n- Responsive design and cross-browser compatibility\n- First experience with Git and agile workflows"
+        }
+      ]
+    },
+    {
+      "title": "Education",
+      "items": [
+        {
+          "title": "Technical University of Munich",
+          "subtitle": "M.Sc. Computer Science",
+          "startDate": "2012-10",
+          "endDate": "2014-03",
+          "description": "Focus on human-computer interaction and software engineering. Master's thesis on user-centered design of agile project management tools."
+        },
+        {
+          "title": "Ludwig Maximilian University of Munich",
+          "subtitle": "B.Sc. Media Informatics",
+          "startDate": "2008-10",
+          "endDate": "2012-09",
+          "description": "Fundamentals of computer science, web development and media design."
+        }
+      ]
+    },
+    {
+      "title": "Certifications",
+      "items": [
+        {
+          "title": "Professional Scrum Master II (PSM II)",
+          "endDate": "2023-06",
+          "description": "Advanced Scrum Master certification from **Scrum.org** focusing on servant leadership and organizational change."
+        },
+        {
+          "title": "SAFe 6 Agilist (SA)",
+          "endDate": "2022-11",
+          "description": "Scaled Agile Framework \u2014 lean-agile leadership and implementation of agile practices at enterprise scale."
+        },
+        {
+          "title": "PRINCE2 Foundation & Practitioner",
+          "endDate": "2020-03",
+          "description": "Traditional project management framework for structured project governance."
+        },
+        {
+          "title": "AWS Cloud Practitioner",
+          "endDate": "2018-09",
+          "description": "Foundational understanding of AWS cloud services, architecture and cost models."
+        }
+      ]
+    }
+  ],
+  "skillSections": [
+    {
+      "title": "Technical Skills",
+      "skills": [
+        {
+          "category": "Project Management",
+          "icon": "task_alt",
+          "items": [
+            "Scrum",
+            "SAFe",
+            "PRINCE2",
+            "Kanban",
+            "Stakeholder Management",
+            "Risk Management"
+          ]
+        },
+        {
+          "category": "Tools & Platforms",
+          "icon": "build",
+          "items": [
+            "Jira",
+            "Confluence",
+            "Miro",
+            "MS Project",
+            "GitHub",
+            "Figma"
+          ]
+        },
+        {
+          "category": "Frontend",
+          "icon": "code",
+          "items": [
+            "React",
+            "TypeScript",
+            "Next.js",
+            "Tailwind CSS",
+            "HTML/CSS"
+          ]
+        },
+        {
+          "category": "Languages",
+          "icon": "translate",
+          "items": [
+            "German (native)",
+            "English (business fluent)",
+            "French (basic)"
+          ]
+        }
+      ]
+    }
+  ]
+}

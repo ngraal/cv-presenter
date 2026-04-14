@@ -10,5 +10,7 @@ services:
       - cv-data:/app/data
     restart: unless-stopped
 
+# On first start with an empty named volume, Docker automatically
+# populates it with the example data baked into the image (/app/data).
 volumes:
   cv-data:
