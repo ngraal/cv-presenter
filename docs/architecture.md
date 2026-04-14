@@ -59,10 +59,10 @@ sequenceDiagram
 
 | Route | Access | Description |
 |-------|--------|-------------|
-| `/` | Any (shows login if unauthenticated) | Main page — displays `TokenEntryForm` or `CVCard` depending on auth state |
+| `/` | Any (shows login if unauthenticated) | Main page — displays `LandingPage` or `CVCard` depending on auth state |
 | `/admin` | Admin only | Redirects to `/admin/tokens` |
 | `/admin/tokens` | Admin only | Token generation (`TokenGenerator`) and verification (`TokenVerifier`) |
-| `/admin/editor` | Admin only | CV data editor (`CVEditorForm`), profile image upload (`ProfileImageUpload`), PDF upload (`PDFUpload`) |
+| `/admin/editor` | Admin only | CV data editor (`CVEditorForm` with integrated profile image), PDF management (`PDFUpload`) |
 
 ### Page Component Tree
 
@@ -70,7 +70,7 @@ sequenceDiagram
 graph TD
     subgraph "/ (Home)"
         HP[HomePage]
-        HP -->|No token| TEF[TokenEntryForm]
+        HP -->|No token| TEF[LandingPage]
         HP -->|Valid token| CVC[CVCard]
         CVC --> PH[PersonalHeader]
         CVC --> ES[ExperienceSection]
@@ -89,9 +89,8 @@ graph TD
 
     subgraph "/admin/editor"
         EP[EditorPage]
-        EP --> PIU[ProfileImageUpload]
-        EP --> PDU[PDFUpload]
         EP --> CEF[CVEditorForm]
+        EP --> PDU[PDFUpload]
     end
 ```
 
@@ -118,10 +117,10 @@ graph TD
 
 | Method | Endpoint | Access | Description |
 |--------|----------|--------|-------------|
-| `GET`  | `/api/pdf` | Authenticated | Download CV as PDF (attachment). Returns 404 if no PDF uploaded. |
-| `GET`  | `/api/pdf/preview` | Authenticated | Preview PDF inline in browser. |
-| `POST` | `/api/pdf/upload` | Admin | Upload a PDF file (multipart/form-data, max 10 MB). |
-| `DELETE`| `/api/pdf` | Admin | Delete the uploaded PDF. |
+| `GET`  | `/api/pdf` | Authenticated | Without `?file=`: list all PDFs as JSON array. With `?file=name`: download named PDF (attachment). |
+| `GET`  | `/api/pdf/preview` | Authenticated | Preview named PDF inline (`?file=name`). |
+| `POST` | `/api/pdf/upload` | Admin | Upload a PDF file (multipart/form-data, max 10 MB). Stored under original filename. |
+| `DELETE`| `/api/pdf` | Admin | Delete a named PDF (`?file=name`). |
 
 ### Profile Image
 
@@ -184,13 +183,13 @@ All data is stored on the file system under the `DATA_DIR` directory (default: `
 ```
 /app/data/
 ├── cv.json              CV data (JSON)
-├── cv.pdf               Uploaded PDF (optional)
+├── *.pdf                Uploaded PDF documents (multiple, by filename)
 └── profile-image.{ext}  Profile image (optional, jpg/png/webp)
 ```
 
-- **cv.json**: Full CV data including personal info, experience, education, skills, and certifications. Falls back to a default template if the file does not exist.
-- **cv.pdf**: The uploaded PDF for download. Served with `Content-Disposition: attachment`.
-- **profile-image.\***: Profile photo displayed in the CV header.
+- **cv.json**: Full CV data including personal info, experience, education, skills (with optional icons), and certifications. Falls back to a default template if the file does not exist.
+- **\*.pdf**: Named PDF files available for download via the floating speed-dial button. Managed through the admin editor.
+- **profile-image.\***: Profile photo displayed in the CV header. Uploaded via the personal information section in the CV editor.
 
 The data directory is persisted via a Docker volume (`cv-data`).
 
@@ -218,7 +217,9 @@ Admin-only API routes are enforced in the middleware:
 - `POST /api/auth/token` — token creation
 - `PUT /api/cv` — CV data modification
 - `POST /api/pdf/upload` — PDF upload
+- `DELETE /api/pdf` — PDF deletion
 - `POST /api/image/upload` — image upload
+- `DELETE /api/image` — image deletion
 
 Non-admin users receive `403 Forbidden`.
 
@@ -284,7 +285,7 @@ volumes:
 src/
 ├── app/
 │   ├── layout.tsx              Root layout (fonts, AdminOverlay)
-│   ├── page.tsx                Home page (TokenEntryForm or CVCard)
+│   ├── page.tsx                Home page (LandingPage or CVCard)
 │   ├── globals.css             Tailwind CSS styles
 │   ├── admin/
 │   │   ├── layout.tsx          Admin layout (auth guard)
@@ -305,9 +306,9 @@ src/
 │           ├── preview/        PDF inline preview
 │           └── upload/         PDF upload
 ├── components/
-│   ├── AdminOverlay.tsx        Admin badge + logout (shown on all pages)
+│   ├── AdminOverlay.tsx        Admin badge (shown for admin users on all pages)
 │   ├── admin/                  Admin page components
-│   ├── auth/                   Auth components (TokenEntryForm, LogoutButton)
+│   ├── auth/                   Auth components (LandingPage, LogoutButton)
 │   └── cv/                     CV display components
 ├── lib/
 │   ├── compact-token.ts        Compact token sign/verify
