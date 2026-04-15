@@ -58,7 +58,9 @@ export default function FloatingDownloadButton({
       {/* Main FAB */}
       <button
         onClick={() => setOpen((prev) => !prev)}
-        onMouseEnter={() => setOpen(true)}
+        onMouseEnter={() => {
+          if (window.matchMedia("(hover: hover)").matches) setOpen(true);
+        }}
         className={`flex items-center justify-center w-14 h-14 bg-linear-to-br from-primary to-secondary text-on-primary-fixed rounded-full shadow-lg transition-transform duration-300 cursor-pointer ${
           open ? "rotate-45" : ""
         }`}

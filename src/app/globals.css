@@ -78,6 +78,14 @@
   border: 1px solid rgba(68, 72, 79, 0.15);
 }
 
+/* Landing page card – higher contrast for small/dim screens */
+.glass-card-landing {
+  background: rgba(32, 38, 47, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(182, 160, 255, 0.2);
+  box-shadow: 0 8px 40px rgba(255, 255, 255, 0.06), 0 0 20px rgba(182, 160, 255, 0.12);
+}
+
 /* Section gradient backgrounds */
 .section-gradient-1 {
   background: radial-gradient(

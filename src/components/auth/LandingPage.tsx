@@ -34,7 +34,7 @@ function BusinessCard({
       ref={cardRef}
       onClick={onTap}
       onTouchStart={onTap}
-      className="w-95 md:w-142.5 max-w-[90vw] aspect-1.75/1 glass-card p-6 md:p-12 flex justify-between cursor-default select-none"
+      className="w-95 md:w-142.5 max-w-[90vw] aspect-1.75/1 glass-card-landing p-6 md:p-12 flex justify-between cursor-default select-none"
       style={{
         transformStyle: "preserve-3d",
         transition: "transform 0.15s ease-out, box-shadow 0.15s ease-out",
@@ -98,13 +98,22 @@ export default function LandingPage({
   const gyroListeningRef = useRef(false);
   const gyroOriginRef = useRef<{ beta: number; gamma: number } | null>(null);
 
+  // Remove prefill token from URL without reloading
+  useEffect(() => {
+    if (prefillToken) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("prefill");
+      window.history.replaceState({}, "", url.pathname + url.search);
+    }
+  }, [prefillToken]);
+
   const applyCardTransform = useCallback((rotateX: number, rotateY: number) => {
     const card = cardRef.current;
     if (!card) return;
     const clampedX = Math.max(-25, Math.min(25, rotateX));
     const clampedY = Math.max(-25, Math.min(25, rotateY));
     card.style.transform = `perspective(800px) rotateX(${clampedX}deg) rotateY(${clampedY}deg)`;
-    card.style.boxShadow = `${-clampedY * 1.5}px ${clampedX * 1.5}px 40px rgba(0,0,0,0.45)`;
+    card.style.boxShadow = `${-clampedY * 2}px ${clampedX * 2}px 60px rgba(255,255,255,0.07), 0 0 30px rgba(182,160,255,0.12)`;
   }, []);
 
   // Start listening for gyroscope events (called after permission is granted or on Android)
@@ -202,7 +211,7 @@ export default function LandingPage({
           return;
         }
 
-        router.refresh();
+        router.replace("/");
       } catch {
         setError("Failed to verify token");
       } finally {

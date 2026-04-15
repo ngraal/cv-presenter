@@ -98,12 +98,14 @@ export default function PersonalHeader({
                 </a>
               )}
               {data.phone && (
-                <div className="flex items-center gap-2 text-on-surface-variant">
+                <a 
+                  href={`tel:${data.phone}`}
+                  className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors">
                   <span className="material-symbols-outlined text-primary text-lg">
                     call
                   </span>
                   <span>{data.phone}</span>
-                </div>
+                </a>
               )}
               {data.location && (
                 <a
