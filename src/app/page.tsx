@@ -13,10 +13,16 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const cvData = await getCVData();
   const cookieStore = await cookies();
   const token = cookieStore.get("cv-presenter-token")?.value;
+  const params = await searchParams;
+  const prefill = typeof params.prefill === "string" ? params.prefill : undefined;
 
   if (!cvData) {
     return (
@@ -39,6 +45,7 @@ export default async function HomePage() {
         title={cvData.personal.title}
         email={cvData.personal.email}
         infoText={cvData.personal.infoText}
+        prefillToken={prefill}
       />
     );
   }
@@ -51,6 +58,7 @@ export default async function HomePage() {
         title={cvData.personal.title}
         email={cvData.personal.email}
         infoText={cvData.personal.infoText}
+        prefillToken={prefill}
       />
     );
   }

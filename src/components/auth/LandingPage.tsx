@@ -11,11 +11,13 @@ function BusinessCard({
   fullName,
   title,
   email,
+  onTap,
 }: {
   cardRef: React.RefObject<HTMLDivElement | null>;
   fullName: string;
   title: string;
   email: string;
+  onTap?: () => void;
 }) {
   const [qrSrc, setQrSrc] = useState<string>("");
 
@@ -30,6 +32,8 @@ function BusinessCard({
   return (
     <div
       ref={cardRef}
+      onClick={onTap}
+      onTouchStart={onTap}
       className="w-95 md:w-142.5 max-w-[90vw] aspect-1.75/1 glass-card p-6 md:p-12 flex justify-between cursor-default select-none"
       style={{
         transformStyle: "preserve-3d",
@@ -57,11 +61,11 @@ function BusinessCard({
       </div>
 
       <div
-        className="flex flex-col items-center justify-center shrink-0 self-stretch translate-y-[1em]"
+        className="flex flex-col items-center justify-center shrink-0 w-[25%] translate-y-[1em]"
         style={{ transform: "translateZ(25px)" }}
       >
         {qrSrc && (
-          <img src={qrSrc} alt="QR Code" className="h-[65%] aspect-square" />
+          <img src={qrSrc} alt="QR Code" className="w-full aspect-square" />
         )}
         <span className="text-on-surface-variant/70 text-[10px] md:text-[13px] font-mono tracking-wide mt-1 md:mt-2.5">
           {FAKE_MINI_TOKEN}
@@ -76,37 +80,108 @@ export default function LandingPage({
   title,
   email,
   infoText,
+  prefillToken,
 }: {
   fullName: string;
   title: string;
   email: string;
   infoText?: string;
+  prefillToken?: string;
 }) {
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState(prefillToken ?? "");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
+  const gyroGrantedRef = useRef(false);
+  const gyroListeningRef = useRef(false);
+  const gyroOriginRef = useRef<{ beta: number; gamma: number } | null>(null);
+
+  const applyCardTransform = useCallback((rotateX: number, rotateY: number) => {
+    const card = cardRef.current;
+    if (!card) return;
+    const clampedX = Math.max(-25, Math.min(25, rotateX));
+    const clampedY = Math.max(-25, Math.min(25, rotateY));
+    card.style.transform = `perspective(800px) rotateX(${clampedX}deg) rotateY(${clampedY}deg)`;
+    card.style.boxShadow = `${-clampedY * 1.5}px ${clampedX * 1.5}px 40px rgba(0,0,0,0.45)`;
+  }, []);
+
+  // Start listening for gyroscope events (called after permission is granted or on Android)
+  const startGyroscope = useCallback(() => {
+    if (gyroListeningRef.current) return;
+    gyroListeningRef.current = true;
+
+    function handleOrientation(e: DeviceOrientationEvent) {
+      if (e.beta === null || e.gamma === null) return;
+      // Capture first reading as origin
+      if (!gyroOriginRef.current) {
+        gyroOriginRef.current = { beta: e.beta, gamma: e.gamma };
+      }
+      const rotateX = (e.beta - gyroOriginRef.current.beta) * 0.5;
+      const rotateY = (e.gamma - gyroOriginRef.current.gamma) * 0.5;
+      applyCardTransform(rotateX, rotateY);
+    }
+
+    window.addEventListener("deviceorientation", handleOrientation);
+  }, [applyCardTransform]);
+
+  // Request iOS permission on card tap, reset gyro origin, or directly start on Android
+  const handleCardTap = useCallback(async () => {
+    // Reset gyroscope origin on every tap and snap card to neutral
+    gyroOriginRef.current = null;
+    applyCardTransform(0, 0);
+
+    if (gyroGrantedRef.current) return;
+    // Prevent re-entrant calls while permission dialog is open
+    gyroGrantedRef.current = true;
+
+    const DOE = DeviceOrientationEvent as any;
+    if (typeof DOE.requestPermission === "function") {
+      try {
+        const permission = await DOE.requestPermission();
+        if (permission === "granted") {
+          startGyroscope();
+          return;
+        }
+      } catch {
+        // User denied or error – silently ignore
+      }
+      gyroGrantedRef.current = false;
+    }
+  }, [startGyroscope, applyCardTransform]);
 
   useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    // Desktop: mouse-driven tilt
     function handleMouseMove(e: globalThis.MouseEvent) {
-      const card = cardRef.current;
-      if (!card) return;
-      const rect = card.getBoundingClientRect();
+      if (gyroListeningRef.current) return;
+      const rect = card!.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
       const maxDistance = Math.max(window.innerWidth, window.innerHeight);
       const rotateY = ((e.clientX - centerX) / maxDistance) * 25;
       const rotateX = ((centerY - e.clientY) / maxDistance) * 25;
-      card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-      card.style.boxShadow = `${-rotateY * 1.5}px ${rotateX * 1.5}px 40px rgba(0,0,0,0.45)`;
+      applyCardTransform(rotateX, rotateY);
     }
 
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+
+    // Mobile: auto-start gyroscope on Android (no permission needed)
+    // Only activate on touch devices to avoid blocking mouse on desktop
+    const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    const DOE = DeviceOrientationEvent as any;
+    if (isTouchDevice && "DeviceOrientationEvent" in window && typeof DOE.requestPermission !== "function") {
+      gyroGrantedRef.current = true;
+      startGyroscope();
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, [applyCardTransform, startGyroscope]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -140,7 +215,7 @@ export default function LandingPage({
   return (
     <div className="min-h-screen flex flex-col items-center justify-center section-gradient-1 px-4">
       <div className="relative mb-0">
-        <BusinessCard cardRef={cardRef} fullName={fullName} title={title} email={email} />
+        <BusinessCard cardRef={cardRef} fullName={fullName} title={title} email={email} onTap={handleCardTap} />
 
         {/* Sketch-style animated arrow from example token to input */}
         <svg
@@ -224,62 +299,38 @@ export default function LandingPage({
             </button>
 
             {showInfo && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowInfo(false)} />
-                <div className="absolute right-full top-1/2 -translate-y-1/2 mr-3 md:mr-6 z-50 w-52 md:w-84 p-3 md:p-5 rounded-lg glass-card text-xs md:text-sm text-on-surface-variant leading-relaxed shadow-xl whitespace-pre-line">
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowInfo(false)}>
+                <div className="absolute inset-0 bg-black/60" />
+                <div
+                  className="relative z-10 w-80 md:w-96 p-5 md:p-6 rounded-xl glass-card text-sm md:text-base text-on-surface-variant leading-relaxed shadow-2xl whitespace-pre-line"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setShowInfo(false)}
+                    className="absolute top-3 right-3 text-on-surface-variant/60 hover:text-on-surface transition"
+                    aria-label="Close"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                   {infoText || "Enter the access code you received."}
-                  <div className="absolute left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-[6px] border-y-transparent border-l-[6px] border-l-outline-variant/15" />
                 </div>
-              </>
+              </div>
             )}
           </div>
           <input
             id="token"
-            type={showPassword ? "text" : "password"}
+            type="text"
+            autoComplete="current-password"
             value={token}
             onChange={(e) => setToken(e.target.value)}
             placeholder="Code eingeben"
-            className="w-full pl-4 md:pl-6 pr-18 md:pr-28 py-3 md:py-5 bg-surface-container border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary/50 outline-none transition text-on-surface placeholder-on-surface-variant/50 text-sm md:text-base"
+            className="w-full pl-4 md:pl-6 pr-10 md:pr-14 py-3 md:py-5 bg-surface-container border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary/50 outline-none transition text-on-surface placeholder-on-surface-variant/50 text-sm md:text-base"
             disabled={loading}
             autoFocus
           />
-
-          <button
-            type="button"
-            onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-9 md:right-14 text-on-surface-variant/60 hover:text-on-surface transition"
-            tabIndex={-1}
-            aria-label={showPassword ? "Hide token" : "Show token"}
-          >
-            <svg
-              className="w-4 h-4 md:w-6 md:h-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              {showPassword ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12c1.292 4.338 5.31 7.5 10.066 7.5.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
-                />
-              ) : (
-                <>
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                  />
-                </>
-              )}
-            </svg>
-          </button>
 
           <button
             type="submit"

@@ -74,29 +74,12 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Check for token in query parameter
+  // Check for token in query parameter — strip it and let the page pre-fill the input
   const queryToken = searchParams.get("token");
   if (queryToken) {
-    const payload = await verifyTokenMiddleware(queryToken);
-    if (payload) {
-      console.log(
-        `[AUTH] Token used: name="${payload.name}", role=${payload.role}, expires=${payload.exp ? new Date(payload.exp * 1000).toISOString() : "unknown"}, at ${new Date().toISOString()}`
-      );
-      // Set cookie and redirect without token param
-      const url = request.nextUrl.clone();
-      url.searchParams.delete("token");
-      const response = NextResponse.redirect(url);
-      response.cookies.set(AUTH_COOKIE, queryToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/",
-      });
-      return response;
-    }
-    // Invalid token in query — strip it and continue to login
     const url = request.nextUrl.clone();
     url.searchParams.delete("token");
+    url.searchParams.set("prefill", queryToken);
     return NextResponse.redirect(url);
   }
 
