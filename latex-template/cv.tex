@@ -1,0 +1,166 @@
+% cv.tex — CV for Elvira Hugendubel
+% Built with cv-style.sty (reusable components from cv-presenter app)
+\documentclass[11pt, a4paper]{article}
+\usepackage{cv-style}
+
+\begin{document}
+
+% ══════════════════════════════════════════════════════════════════════
+% PERSONAL HEADER
+% ══════════════════════════════════════════════════════════════════════
+\personalheaderwithimage
+  {profile-image.jpg}
+  {Elvira Hugendubel}
+  {Senior Project Manager}
+  {Experienced project manager with a strong technical background in
+   frontend development. I combine agile methodology with technical
+   expertise to lead cross-functional teams to peak performance and
+   successfully deliver complex digital transformation projects.}
+
+\cvcontactbar
+  {03/1988}
+  {erika.mustermann@example.de}
+  {+49 170 1234567}
+  {Munich, Germany}
+
+% ══════════════════════════════════════════════════════════════════════
+% EXPERIENCE
+% ══════════════════════════════════════════════════════════════════════
+\begin{timelinesection}{Experience}
+
+  \timelineitem[current]
+    {TechVision GmbH}
+    {Senior Project Manager}
+    {04/2022}
+    {}
+    {Leading a portfolio of \textbf{three parallel digital transformation
+    projects} with a total budget of \texteuro 2.5M. Managing cross-functional
+    teams (15--20 people) using Scrum and SAFe.
+    \begin{itemize}[nosep, leftmargin=1.2em, topsep=0.3em]
+      \item Introduced a company-wide design system in collaboration
+            with UX and frontend teams
+      \item Reduced time-to-market by 30\% through optimized release processes
+      \item Stakeholder management at C-level
+    \end{itemize}}
+
+  \timelineitem
+    {Digital Solutions AG}
+    {Project Manager}
+    {09/2019}
+    {03/2022}
+    {Responsible for planning and delivery of client projects in the
+    e-commerce space. Close collaboration with development teams and
+    product owners.
+    \begin{itemize}[nosep, leftmargin=1.2em, topsep=0.3em]
+      \item Migrated a legacy shop to a modern \textbf{React/Next.js} architecture
+      \item Introduced Jira and Confluence as central project management tools
+      \item Built an internal training program for agile methods
+    \end{itemize}}
+
+  \timelineitem
+    {WebKraft Studios}
+    {Frontend Developer}
+    {03/2016}
+    {08/2019}
+    {Developed responsive web applications for mid-sized clients.
+    Close coordination with designers and backend developers.
+    \begin{itemize}[nosep, leftmargin=1.2em, topsep=0.3em]
+      \item Built SPAs with \textbf{React} and \textbf{TypeScript}
+      \item Implemented component libraries and style guides
+      \item Mentored working students and interns
+    \end{itemize}}
+
+  \timelineitem
+    {Agentur Kreativpixel}
+    {Junior Frontend Developer}
+    {04/2014}
+    {02/2016}
+    {Entry into professional web development. Built client websites
+    and landing pages.
+    \begin{itemize}[nosep, leftmargin=1.2em, topsep=0.3em]
+      \item HTML, CSS, JavaScript and jQuery
+      \item Responsive design and cross-browser compatibility
+      \item First experience with Git and agile workflows
+    \end{itemize}}
+
+\end{timelinesection}
+
+% ══════════════════════════════════════════════════════════════════════
+% EDUCATION
+% ══════════════════════════════════════════════════════════════════════
+\begin{timelinesection}{Education}
+
+  \timelineitem[first]
+    {Technical University of Munich}
+    {M.Sc. Computer Science}
+    {10/2012}
+    {03/2014}
+    {Focus on human-computer interaction and software engineering.
+    Master's thesis on user-centered design of agile project management tools.}
+
+  \timelineitem
+    {Ludwig Maximilian University of Munich}
+    {B.Sc. Media Informatics}
+    {10/2008}
+    {09/2012}
+    {Fundamentals of computer science, web development and media design.}
+
+\end{timelinesection}
+
+% ══════════════════════════════════════════════════════════════════════
+% CERTIFICATIONS
+% ══════════════════════════════════════════════════════════════════════
+\begin{timelinesection}{Certifications}
+
+  \timelineitem
+    {Professional Scrum Master II (PSM II)}
+    {}
+    {}
+    {06/2023}
+    {Advanced Scrum Master certification from \textbf{Scrum.org} focusing
+    on servant leadership and organizational change.}
+
+  \timelineitem
+    {SAFe 6 Agilist (SA)}
+    {}
+    {}
+    {11/2022}
+    {Scaled Agile Framework --- lean-agile leadership and implementation
+    of agile practices at enterprise scale.}
+
+  \timelineitem
+    {PRINCE2 Foundation \& Practitioner}
+    {}
+    {}
+    {03/2020}
+    {Traditional project management framework for structured project governance.}
+
+  \timelineitem
+    {AWS Cloud Practitioner}
+    {}
+    {}
+    {09/2018}
+    {Foundational understanding of AWS cloud services, architecture and cost models.}
+
+\end{timelinesection}
+
+% ══════════════════════════════════════════════════════════════════════
+% SKILLS
+% ══════════════════════════════════════════════════════════════════════
+\begin{skillssection}{Technical Skills}
+
+  \skillrow
+    {\faIcon{tasks}}{Project Management}
+    {Scrum, SAFe, PRINCE2, Kanban, Stakeholder Mgmt, Risk Management}
+    {\faIcon{tools}}{Tools \& Platforms}
+    {Jira, Confluence, Miro, MS Project, GitHub, Figma}
+
+  \skillrow
+    {\faIcon{code}}{Frontend}
+    {React, TypeScript, Next.js, Tailwind CSS, HTML/CSS}
+    {\faIcon{language}}{Languages}
+    {German (native), French (basic), English (business fluent)}
+
+\end{skillssection}
+
+\end{document}

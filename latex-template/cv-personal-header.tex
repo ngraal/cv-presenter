@@ -1,0 +1,69 @@
+% cv-personal-header.tex — Personal header & contact bar component
+% Corresponds to PersonalHeader.tsx in the web app
+
+% ═════════════════════════════════════════════════════════════════════
+% PERSONAL HEADER
+% Usage: \personalheader{name}{title}{summary}
+%        \personalheaderwithimage{image-path}{name}{title}{summary}
+% ═════════════════════════════════════════════════════════════════════
+
+% Variant without profile image
+\newcommand{\personalheader}[3]{%
+  \begin{center}
+    \vspace{0.4cm}
+
+    {\cvheadline\fontsize{28}{34}\selectfont\bfseries\color{cv-on-surface}#1}
+
+    \vspace{0.3cm}
+
+    {\cvheadline\Large\color{cv-primary}#2}
+
+    \vspace{0.6cm}
+
+    \begin{minipage}{0.85\textwidth}
+      \centering
+      \color{cv-on-surface-light}\normalsize #3
+    \end{minipage}
+
+    \vspace{0.6cm}
+  \end{center}
+}
+
+% Variant with profile image (rounded rectangle, beside name — like the app's hero layout)
+\newcommand{\personalheaderwithimage}[4]{%
+  \noindent
+  \begin{minipage}[c]{3.8cm}%
+    \begin{tikzpicture}
+      \clip[rounded corners=8pt] (-1.8cm,-1.8cm) rectangle (1.8cm,1.8cm);
+      \node at (0,0) {\includegraphics[width=3.6cm]{#1}};
+    \end{tikzpicture}
+  \end{minipage}%
+  \hfill
+  \begin{minipage}[c]{\dimexpr\linewidth-4.4cm\relax}%
+    {\cvheadline\fontsize{28}{34}\selectfont\bfseries\color{cv-on-surface}#2}
+
+    \vspace{0.3cm}
+
+    {\cvheadline\Large\color{cv-primary}#3}
+
+    \vspace{0.5cm}
+
+    {\color{cv-on-surface-light}\normalsize #4}
+  \end{minipage}%
+  \par\vspace{0.6cm}
+}
+
+% ═════════════════════════════════════════════════════════════════════
+% CONTACT BAR
+% Usage: \cvcontactbar{birthdate}{email}{phone}{location}
+% ═════════════════════════════════════════════════════════════════════
+\newcommand{\cvcontactbar}[4]{%
+  \begin{center}
+    \small\color{cv-on-surface-light}%
+    \ifnotempty{#1}{{\color{cv-primary}\faIcon{birthday-cake}}~#1\hspace{1.2em}}%
+    {\color{cv-primary}\faIcon{envelope}}~#2\hspace{1.2em}%
+    {\color{cv-primary}\faIcon{phone}}~#3\hspace{1.2em}%
+    {\color{cv-primary}\faIcon{map-marker-alt}}~#4%
+  \end{center}
+  \vspace{0.5cm}
+}

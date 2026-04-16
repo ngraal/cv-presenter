@@ -1,0 +1,9 @@
+services:
+  latex-cv:
+    build: .
+    volumes:
+      - .:/doc
+    working_dir: /doc
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - "pdflatex -interaction=nonstopmode -halt-on-error cv.tex && pdflatex -interaction=nonstopmode -halt-on-error cv.tex"

@@ -42,3 +42,13 @@ next-env.d.ts
 
 # data
 /data
+
+# latex build artifacts
+latex-template/*.pdf
+latex-template/*.aux
+latex-template/*.log
+latex-template/*.out
+latex-template/*.toc
+latex-template/*.fls
+latex-template/*.fdb_latexmk
+latex-template/*.synctex.gz

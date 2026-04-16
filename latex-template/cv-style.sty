@@ -1,0 +1,88 @@
+% cv-style.sty — Main CV style package (loads all components)
+% Mirrors the Material Design 3 structure of the cv-presenter app
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{cv-style}[2025/01/01 CV Presenter LaTeX Style]
+
+% ─── Required Packages ────────────────────────────────────────────────
+\RequirePackage[a4paper, margin=2cm, top=2.5cm, bottom=2cm]{geometry}
+\RequirePackage{xcolor}
+\RequirePackage{tikz}
+\RequirePackage{fontenc}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage{parskip}
+\RequirePackage{enumitem}
+\RequirePackage{tabularx}
+\RequirePackage{graphicx}
+\RequirePackage{calc}
+\RequirePackage{hyperref}
+\RequirePackage{fancyhdr}
+\RequirePackage{fontawesome5}
+\RequirePackage{titlesec}
+\RequirePackage{multicol}
+\RequirePackage{ragged2e}
+\RequirePackage{microtype}
+\RequirePackage{etoolbox}
+\RequirePackage{lmodern}
+\RequirePackage{needspace}
+\RequirePackage[default]{inter}         % Body font (Inter, like the app)
+\RequirePackage[defaultfam,tabular,lining]{montserrat} % Headline font (closest to Manrope)
+
+\usetikzlibrary{calc,positioning}
+
+% ─── Color Scheme (from app: Material Design 3 — adapted for print) ──
+\definecolor{cv-primary}{HTML}{7B61FF}       % Purple (app: #b6a0ff)
+\definecolor{cv-secondary}{HTML}{00B8D4}     % Cyan (app: #00e3fd)
+\definecolor{cv-tertiary}{HTML}{2E7D32}      % Green (app: #b8ffbb)
+\definecolor{cv-surface}{HTML}{FFFFFF}        % White background for print
+\definecolor{cv-on-surface}{HTML}{1A1A2E}    % Dark text
+\definecolor{cv-on-surface-light}{HTML}{4A4A5A} % Muted text
+\definecolor{cv-outline}{HTML}{C8C8D4}       % Borders
+\definecolor{cv-section-bg}{HTML}{F5F3FF}    % Light purple tint
+\definecolor{cv-skill-bg}{HTML}{F8F9FA}      % Light gray for skill cards
+\definecolor{cv-skill-border}{HTML}{E8E5F0}  % Skill card border
+
+% ─── Hyperref Setup ───────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=false,
+  pdfborder={0 0 0},
+  hidelinks,
+}
+
+% ─── Page Style ───────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\small\color{cv-on-surface-light}\thepage}
+
+% ─── Base Typography ──────────────────────────────────────────────────
+% Inter is the default font (set via [default] option)
+% Montserrat is used for headlines via \cvheadline
+\newcommand{\cvheadline}{\fontfamily{Montserrat-TOsF}\selectfont}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.4em}
+
+% ─── Shared Helpers ───────────────────────────────────────────────────
+\newcounter{cvsectioncounter}
+\setcounter{cvsectioncounter}{0}
+
+\newcommand{\ifnotempty}[2]{\ifblank{#1}{}{#2}}
+
+% Numbered section header (like the app: "01. Title")
+\newcommand{\cvsectionheader}[1]{%
+  \stepcounter{cvsectioncounter}%
+  \vspace{0.8cm}%
+  \noindent
+  \needspace{4cm}%
+  {\cvheadline\fontsize{18}{22}\selectfont\bfseries
+    {\color{cv-secondary}\ifnum\value{cvsectioncounter}<10 0\fi\arabic{cvsectioncounter}.}\enspace
+    {\color{cv-on-surface}#1}%
+  }%
+  \vspace{0.5cm}\par%
+}
+
+% ─── Load Component Files ────────────────────────────────────────────
+\input{cv-personal-header}
+\input{cv-timeline-section}
+\input{cv-skills-section}
+
+\endinput

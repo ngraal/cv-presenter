@@ -1,0 +1,105 @@
+% cv-skills-section.tex — Skills section component
+% Corresponds to SkillsSection.tsx in the web app
+
+% ═════════════════════════════════════════════════════════════════════
+% SKILLS SECTION
+% Usage: \begin{skillssection}{Title}
+%          \skillcategory{\faIcon{code}}{Category}{Skill 1, Skill 2}
+%        \end{skillssection}
+% ═════════════════════════════════════════════════════════════════════
+\newenvironment{skillssection}[1]{%
+  \cvsectionheader{#1}%
+}{%
+  \vspace{0.2cm}%
+}
+
+% ─── Single Skill Tag (internal) ─────────────────────────────────────
+\newcommand{\skilltag}[1]{%
+  \begingroup
+  \setlength{\fboxsep}{2.5pt}%
+  \colorbox{cv-section-bg}{%
+    \kern1pt{\small\color{cv-primary}\rule[-0.5ex]{1.5pt}{2ex}}\kern3pt%
+    {\small\color{cv-on-surface}#1}%
+    \kern2pt%
+  }%
+  \endgroup
+  \hspace{0.15em}%
+}
+
+% ─── Process comma-separated skill list (internal) ───────────────────
+\newcommand{\skilltags}[1]{%
+  \forcsvlist{\skilltag}{#1}%
+}
+
+% ═════════════════════════════════════════════════════════════════════
+% SKILL CATEGORY CARD (internal — use \skillrow to render pairs)
+% ═════════════════════════════════════════════════════════════════════
+\newsavebox{\cvskillcontentbox}
+\newcommand{\cvskillcard}[4]{%
+  % #1 = width, #2 = min height, #3 = icon+title, #4 = skill tags
+  % Measure content
+  \savebox{\cvskillcontentbox}{%
+    \begin{minipage}{#1-16pt}%
+      #3%
+      \par\vspace{0.3em}%
+      \setlength{\baselineskip}{1.8em}%
+      \setlength{\lineskip}{0.3em}%
+      \setlength{\lineskiplimit}{0.3em}%
+      \skilltags{#4}%
+    \end{minipage}%
+  }%
+  \begin{tikzpicture}
+    \node[
+      draw=cv-skill-border,
+      fill=cv-skill-bg,
+      rounded corners=4pt,
+      inner sep=8pt,
+      text width=#1-16pt,
+      minimum height=#2,
+      anchor=north west,
+    ] (card) {%
+      #3%
+      \par\vspace{0.3em}%
+      \setlength{\baselineskip}{1.8em}%
+      \setlength{\lineskip}{0.3em}%
+      \setlength{\lineskiplimit}{0.3em}%
+      \skilltags{#4}%
+    };
+  \end{tikzpicture}%
+}
+
+% ═════════════════════════════════════════════════════════════════════
+% SKILL ROW — renders two cards side by side with equal height
+% Usage: \skillrow{icon1}{title1}{skills1}{icon2}{title2}{skills2}
+% ═════════════════════════════════════════════════════════════════════
+\newlength{\cvskillcolw}
+\newlength{\cvskillha}
+\newlength{\cvskillhb}
+\newlength{\cvskillhmax}
+\newsavebox{\cvskillboxa}
+\newsavebox{\cvskillboxb}
+\newcommand{\skillrow}[6]{%
+  \setlength{\cvskillcolw}{0.5\linewidth-0.3em}%
+  % Measure card A
+  \savebox{\cvskillboxa}{%
+    \cvskillcard{\cvskillcolw}{0pt}{{\color{cv-primary}#1}\enspace{\bfseries\color{cv-on-surface}#2}}{#3}%
+  }%
+  % Measure card B
+  \savebox{\cvskillboxb}{%
+    \cvskillcard{\cvskillcolw}{0pt}{{\color{cv-primary}#4}\enspace{\bfseries\color{cv-on-surface}#5}}{#6}%
+  }%
+  % Calculate max height
+  \setlength{\cvskillha}{\dimexpr\ht\cvskillboxa+\dp\cvskillboxa\relax}%
+  \setlength{\cvskillhb}{\dimexpr\ht\cvskillboxb+\dp\cvskillboxb\relax}%
+  \ifdim\cvskillha>\cvskillhb
+    \setlength{\cvskillhmax}{\cvskillha}%
+  \else
+    \setlength{\cvskillhmax}{\cvskillhb}%
+  \fi
+  % Render both at max height
+  \noindent
+  \cvskillcard{\cvskillcolw}{\cvskillhmax}{{\color{cv-primary}#1}\enspace{\bfseries\color{cv-on-surface}#2}}{#3}%
+  \hfill
+  \cvskillcard{\cvskillcolw}{\cvskillhmax}{{\color{cv-primary}#4}\enspace{\bfseries\color{cv-on-surface}#5}}{#6}%
+  \par\vspace{0.4em}%
+}

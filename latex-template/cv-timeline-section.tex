@@ -1,0 +1,76 @@
+% cv-timeline-section.tex — Timeline section component
+% Corresponds to TimelineSection.tsx in the web app
+
+% ═════════════════════════════════════════════════════════════════════
+% TIMELINE SECTION
+% Usage: \begin{timelinesection}{Title}
+%          \timelineitem[current]{title}{subtitle}{start}{end}{description}
+%        \end{timelinesection}
+% ═════════════════════════════════════════════════════════════════════
+\newenvironment{timelinesection}[1]{%
+  \cvsectionheader{#1}%
+}{%
+  \vspace{0.2cm}%
+}
+
+% ─── Timeline indicator (internal) ───────────────────────────────────
+\newcommand{\cvtimelinedot}[1]{%
+  \raisebox{0.3em}{%
+    \begin{tikzpicture}[baseline=0pt]
+      \ifstrequal{#1}{current}{%
+        \fill[cv-tertiary] (0,0) circle (4pt);
+        \draw[cv-tertiary, line width=1pt, opacity=0.4] (0,0) circle (6pt);
+      }{%
+        \ifstrequal{#1}{first}{%
+          \fill[cv-primary] (0,0) circle (4pt);
+        }{%
+          \draw[cv-on-surface-light, line width=1.2pt] (0,0) circle (3.5pt);
+        }%
+      }%
+    \end{tikzpicture}%
+  }%
+}
+
+% ─── Date range formatter (internal) ─────────────────────────────────
+\newcommand{\cvdaterange}[2]{%
+  \small\color{cv-on-surface-light}%
+  \ifblank{#1}{%
+    \ifblank{#2}{}{#2}%
+  }{%
+    #1%
+    \ifblank{#2}{~--~{\color{cv-tertiary}\textbf{heute}}}{~--~#2}%
+  }%
+}
+
+% ═════════════════════════════════════════════════════════════════════
+% TIMELINE ITEM
+% Usage: \timelineitem[current]{title}{subtitle}{startdate}{enddate}{description}
+%   Optional arg: current = active position, first = highlighted, (empty) = past
+% ═════════════════════════════════════════════════════════════════════
+\newlength{\cvtimelineitemht}
+\newsavebox{\cvtimelinecontentbox}
+\newcommand{\timelineitem}[6][]{%
+  % First, measure the content height
+  \savebox{\cvtimelinecontentbox}{%
+    \begin{minipage}[t]{\dimexpr\linewidth-2.2em\relax}%
+      {\bfseries\color{cv-on-surface}#2}%
+      \hfill
+      \cvdaterange{#4}{#5}%
+      \ifnotempty{#3}{\par{\color{cv-primary}#3}}%
+      \vspace{0.2em}
+      \ifnotempty{#6}{\par{\small\color{cv-on-surface-light}#6}}%
+      \vspace{0.4em}
+    \end{minipage}%
+  }%
+  % Calculate line height: content height minus space for the dot
+  \setlength{\cvtimelineitemht}{\dimexpr\ht\cvtimelinecontentbox+\dp\cvtimelinecontentbox-0.8em\relax}%
+  \noindent
+  \begin{minipage}[t]{1.2em}%
+    \centering
+    \cvtimelinedot{#1}\\[0.2em]%
+    \color{cv-outline}\rule{1pt}{\cvtimelineitemht}%
+  \end{minipage}%
+  \hspace{0.6em}%
+  \usebox{\cvtimelinecontentbox}%
+  \par\vspace{0.1em}%
+}

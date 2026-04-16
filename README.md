@@ -8,6 +8,7 @@ A self-hosted digital CV behind token-based authentication. Share your resume vi
 ![CV Overview](docs/screenshots/cv-overview.png)
 
 For technical details, see [docs/architecture.md](docs/architecture.md), [docs/tokens.md](docs/tokens.md), and [docs/admin-space.md](docs/admin-space.md).
+For the LaTeX CV template, see [latex-template/README.md](latex-template/README.md).
 
 ## Quick Start (Docker)
 
